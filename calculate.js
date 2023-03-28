@@ -426,7 +426,7 @@ module.exports = function (input_json) {
       
       return ld;
     }
-    generateSummaryTable(epoxyModFactor, confiningReinfModFactor, locationModFactor) {
+    generateSummaryTableData(epoxyModFactor, confiningReinfModFactor, locationModFactor) {
       
       let rebars = this.rebars;
       epoxyModFactor = parseFloat(epoxyModFactor);
@@ -434,9 +434,9 @@ module.exports = function (input_json) {
       this.generateCalcReport = false;
 
       let rebar_data = [];
+      let rebar_data_obj = {}
 
       for (let rebarNo in rebars) {
-
         let this_data = {};
 
         let this_db = this.getdb(rebarNo);
@@ -476,9 +476,14 @@ module.exports = function (input_json) {
         };
 
         rebar_data.push(this_data);
+        rebar_data_obj[rebarNo] = this_data
       }
 
+      this.rebar_data = rebar_data_obj
       return rebar_data;
+    }
+    getRebarDetail(rebarNo) {
+      return this.rebar_data[rebarNo]
     }
   }
 
@@ -486,21 +491,23 @@ module.exports = function (input_json) {
   REPORT.block.new("Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)", 2);
   REPORT.block.finish();
 
+  // Create Rebar Detail using from fy, fc, lambda
   var rebar_data = new RebarDetails(fy, fc, lambda);
 
-  let rebars = rebar_data.rebars;
-
-  for (let rebarNo in rebars) {
+  // CALCULATE development and splice length per rebar diameter
+  for (let rebarNo in rebar_data.rebars) {
     rebar_data.generateCalcs(rebarNo, psi_e, false, psi_r, psi_o);
   }
   
-  var summary_table_data = rebar_data.generateSummaryTable(psi_e, psi_r, psi_o);
+  // Generate Summary table 
+  var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
 
+  // Store data for ld, ldh, and splice length
   let straight_ld_data = [];
   let hook_bend_data = [];
   let splice_data = [];
   
-  let converted_summary_table_data = summary_table_data.map(obj => {
+  summary_table_data.map(obj => {
     let {
       rebar_name,
       rebar_diameter,
@@ -542,11 +549,18 @@ module.exports = function (input_json) {
 
   });
 
-  function generateSummaryTable (header, data, options) {
+
+  // Reusable function for generating table
+  function generateTable (header, data, options) {
     let table_data = [...header, ...data];
     ReportHelpers.quickTable(table_data, options);
   }
 
+
+
+
+  
+  // Generate development length summary table for straight bars
   let straight_ld_data_header = [
     [
       "Rebar", 
@@ -556,7 +570,10 @@ module.exports = function (input_json) {
       "Compression<br>l<sub>dc</sub> in.", 
     ]
   ];
-
+  
+  generateTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
+  
+  // Generate development length summary table for hooked bars
   let hook_bend_data_header = [
     [
       "Rebar", 
@@ -569,6 +586,9 @@ module.exports = function (input_json) {
     ]
   ];
 
+  generateTable (hook_bend_data_header, hook_bend_data, {heading: `Hook Development Length and Geometry <br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
+  
+  // Generate splice length table summary for each rebar
   let splice_data_header = [
     [
       "Rebar", 
@@ -579,9 +599,7 @@ module.exports = function (input_json) {
     ]
   ];
 
-  generateSummaryTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-  generateSummaryTable (hook_bend_data_header, hook_bend_data, {heading: `Hook Development Length and Geometry <br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
-  generateSummaryTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
+  generateTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
 
   
   var output = {
@@ -589,15 +607,11 @@ module.exports = function (input_json) {
       sub_heading_1: {
         unit: "heading",
         label: "Length",
-      },
-      fy_fc: {
-        "label": "Dummy Output",
-        "value": fc*fy,
-        "unit": "utility",
       }
     },
     report: REPORT,
   };
 
   return output;
+
 };
