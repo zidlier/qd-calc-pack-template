@@ -550,7 +550,7 @@ module.exports = function (input_json) {
   let straight_ld_data_header = [
     [
       "Rebar", 
-      "Bar Dia.", 
+      "Bar Dia.<br>in.", 
       "Top Bars<br>l<sub>d</sub> in.",
       "Bottom Bars<br>l<sub>d</sub> in.",
       "Compression<br>l<sub>dc</sub> in.", 
@@ -560,19 +560,19 @@ module.exports = function (input_json) {
   let hook_bend_data_header = [
     [
       "Rebar", 
-      "Bar Dia.",
+      "Bar Dia.<br>in.",
       "Hook<br>l<sub>dh</sub> in.",
       "90&deg Hook<br>l<sub>ext</sub> in.", 
-      "90&deg<br>Inside Dia. in.", 
+      "90&deg<br>Inside Dia.<br>in.", 
       "180&deg Hook<br>l<sub>ext</sub> in.", 
-      "180&deg<br>Inside Dia. in."
+      "180&deg<br>Inside Dia.<br>in."
     ]
   ];
 
   let splice_data_header = [
     [
       "Rebar", 
-      "Bar Dia.",
+      "Bar Dia.<br>in.",
       "Splice length<br>(compression)<br>l<sub>sc</sub> in.", 
       "Class A <br>splice length<br>(tension)<br>l<sub>st</sub> in.", 
       "Class B <br>splice length<br>(tension)<br>l<sub>st</sub> in.",
@@ -580,7 +580,7 @@ module.exports = function (input_json) {
   ];
 
   generateSummaryTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-  generateSummaryTable (hook_bend_data_header, hook_bend_data, {heading: `Hook Development Length and Geometry for fy = ${fy} psi and f'c = ${fc} psi`,});
+  generateSummaryTable (hook_bend_data_header, hook_bend_data, {heading: `Hook Development Length and Geometry <br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
   generateSummaryTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
 
   

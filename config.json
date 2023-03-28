@@ -25,6 +25,7 @@
 			"type": "dropdown",
 			"label": "f'<sub>y</sub>",
 			"default": "40000",
+			"units": "psi",
 			"options": [
 				{
 					"value": "40000",
