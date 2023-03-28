@@ -1,302 +1,253 @@
 module.exports = function (input_json) {
 
-    var h_unit = VARIABLES['h'].units_str; //they are also set as variables
-    var b_unit = VARIABLES['b'].units_str;
+  let {fy, fc, lambda} = input_json;
 
-    //do all calculations
-    const max_moi = 2200000;
-    var area = h * b;
-    var moi = ReportHelpers.round(b * Math.pow(h, 3) / 12);
-    var moi_in_inches = ReportHelpers.convert(moi, "mm4", "in4");
-    var utility = moi / max_moi;
-    utility = ReportHelpers.round(utility, 3);  //round to 3 dec. places
+  var prettyPrint = function (val, decimal) {
+    if (typeof val == "undefined" || val == null) return "-";
+    val = parseFloat(val);
+    if (!decimal) decimal = 3;
+    var res = ReportHelpers.round(val, decimal);
+    if (isNaN(res)) return val;
+    return res;
+  };
 
-    //REPORTING
-    REPORT.block.new("SkyCiv Basic Section Calculation", 2); // when creating a new block you can create an optional heading with a size (1-5 with 1 being the largest heading)
-    REPORT.block.new("Area Calculations", 4);
-    REPORT.block.addReference("<small>Table 8.6.1.1</small>");
-    REPORT.block.addCalculation("[math]Area = h * b = " + h + " * " + b + "  = " + area + " " + h_unit + "mm^2[math]");
-
-    REPORT.block.new("Moment of Inertia", 4);
-    REPORT.block.addCalculation("[math]I_{y} = \\frac{ bh^3 }{ 12 } = \\frac{ (" + b + ")  " + h + "^3}{ 12 }[math]");
-    REPORT.block.addCalculation("[math]I_{y} = " + moi + " " + h_unit + "^4[math]");
-    REPORT.block.addCalculation("[math]Convert\\: to\\: inches \\: using\\: ReportHelpers.convert:[math]");
-    REPORT.block.addCalculation("[math]I_{y} = " + ReportHelpers.round(moi_in_inches,4) + "in^4[math]");
-    REPORT.block.addReference("<em>Tip: This is a really useful website for Latex: <a href='https://www.codecogs.com/latex/eqneditor.php' target='_blank'>Link</a></em>");
-
-    //ANOTHER WAY TO DO IT
-    REPORT.block.new("Another way is to use runFormula", 4);
-    var moi = ReportHelpers.formula("I_y = b * Math.pow(h, 3) / 12", "mm^4", 2);
-
-  //ANOTHER WAY TO DO IT
-    REPORT.block.new("Do some easy unit converting", 4);
-    ReportHelpers.print(null, "10 Inches is equal to " + ReportHelpers.convert(10, "in", "mm")+ " mm");
-    ReportHelpers.print(null, "10 kN is equal to " + ReportHelpers.convert(10, "kN", "kip")+ " kip"); 
-    ReportHelpers.print(null, "2352 kN is equal to " +ReportHelpers.convert(2352, "mm", "m")+  "m");
-
-    REPORT.block.new("Utility Ratio", 4);
-    REPORT.block.addCalculation("[math] Utility = \\frac{ I_y }{ I_{y,max}} =  \\frac{ " + moi + "}{ " + max_moi + "} = " + utility + "  [math]");
-    ReportHelpers.printStatus(utility, true);
-
+  var customBlock = function (obj, pagebreak, REPORT) {
+    let font_size = obj.font_size ? obj.font_size : 3;
+    REPORT.block.new(obj.title, font_size);
+    if (obj.reference) REPORT.block.addReference(obj.reference); // by default references are aligned to the top of a block
+    if (obj.content) REPORT.block.addCalculation(obj.content);
+    if (obj.result) REPORT.block.addResult(obj.result); // by default results are aligned to the bottom of a block
     REPORT.block.finish();
+    if (pagebreak) REPORT.section.break();
+  };
 
-    //simplified reporting
-    let max_def = 5;
+  class RebarDetails {
+    constructor(fy, fc, lambda) {
+      this.fy = fy;
+      this.fc = fc;
+      this.lambda = lambda;
 
-    REPORT.block.new("Simplified Calculation Reporting");
-    REPORT.block.addReference("<a href='https://skyciv.com/api/v3/docs/quick-design-calculate#reporting-functions' target='_blank'>ReportHelper Docs</a>")
-    REPORT.block.addCalculation("Say you don't want to do the full calculation reporting, you can print a simplified version like so:<br><br>")
-    ReportHelpers.lineResult("Max Shear force in  Member", "V_{y}", 22.43 + " kN")
-    ReportHelpers.lineResult("Displacement Max", "\\gamma_y", max_def + " mm")
-    ReportHelpers.lineResult("Design Load", "\\omega_x", 77.43 + " kNm")
-    ReportHelpers.lineResult("Section Capacity", "\\gamma_{y2}", 123.43 + " kNm")
-    ReportHelpers.lineResult("Remaining Capacity in Section", "\\gamma_{y3}", 46 + " kNm")
-    ReportHelpers.lineResult("Design Load", "\\omega_x", 77.43 + " kNm")
-    ReportHelpers.lineResult("Section Capacity", "\\gamma_{y2}", 123.43 + " kNm")
-    ReportHelpers.lineResult("Remaining Capacity in Section", "\\gamma_{y3}", 46 + " kNm")
-    REPORT.block.finish();
+      let rebars = {
+        "3": {"db": 0.375,"As": 0.11, "unit": "in"},
+        "4": {"db": 0.5,"As": 0.20, "unit": "in"},
+        "5": {"db": 0.625,"As": 0.31, "unit": "in"},
+        "6": {"db": 0.75,"As": 0.44, "unit": "in"},
+        "7": {"db": 0.875,"As": 0.6, "unit": "in"},
+        "8": {"db": 1,"As": 0.79, "unit": "in"},
+        "9": {"db": 1.128,"As": 1, "unit": "in"},
+        "10": {"db": 1.27,"As": 1.27, "unit": "in"},
+        "11": {"db": 1.41,"As": 1.56, "unit": "in"},
+        "14": {"db": 1.693,"As": 2.25, "unit": "in"},
+        "18": {"db": 2.257,"As": 4.00, "unit": "in"}
+      };
 
+      this.rebars = rebars;
 
-    // ---- SVG EXMAPLE ----- //
-    let concrete_shape = [[b, h], [b, -h], [-b, -h], [-b, h]];
-    let steel_profile = [];
-    let rebar = [];
-    let links = [];
-    let axis = [[[-75, 0], [75, 0]], [[0, 75], [0, -75]]];
-    let dims = [["left", 1, 0, h * 2, h], ["bottom", 1, 0, b * 2, b]];
-    let steel_profile_color = "#66b3ff";
-    let concrete_color = "#d9d9d9";
-    let rebar_color = "#ff471a";
-    let links_color = "#248f24";
+      let min_rebar_hook_in_tension = {}; // From table 25.3.1
+      let min_rebar_hook_stirrups = {}; // From table 25.3.2
 
-    let sec_1 = new SectionSVG({
-        height: 300,
-        width: 300,
-    });
-
-    sec_1.drawData({
-        type: "encased",
-        concrete_shape: concrete_shape,
-        steel_profile: steel_profile,
-        links: links,
-        rebar: rebar,
-        concrete_color: concrete_color,
-        steel_profile_color: steel_profile_color,
-        rebar_color: rebar_color,
-        links_color: links_color,
-        axis: axis,
-        dims: dims,
-        reserve: true
-    });
-
-    REPORT.block.new("Let's print some SVG Section graphics", 2);
-    REPORT.block.addReference("<a href='https://dev.skyciv.com/dev-docs/?=skyciv-utils/svg-graphics.md'  target='_blank'>Visit SVG Docs</a>");
-    REPORT.block.addCalculation("<div style='text-align: center;'>" + sec_1.getHTML() + "</div>");
-    REPORT.block.finish();
-
-    const team_info = [
-        {
-            name: "Sam Carigliano",
-            height: 1.62,
-            age: 33
-        },
-        {
-            name: "Paul Comino",
-            height: 1.55,
-            age: 31
-        },
-        {
-            name: "Sergey",
-            height: 1.92,
-            age: 39
-        },
-        {
-            name: "Jake",
-            height: 1.90,
-            age: 21
-        },
-    ]
-
-    //get tallest person
-    var max_height = 0;
-    var tallest_person;
-    for (var i = 0; i < team_info.length; i++) {
-        if (team_info[i].height > max_height) {
-            max_height = team_info[i].height;
-            tallest_person = team_info[i].name;
-        }
-    }
-
-
-    REPORT.block.new("Let's print a table", 4);
-    REPORT.block.addReference("<a href='https://dev.skyciv.com/dev-docs/' target='_blank'>Visit Docs</a>");
-    REPORT.block.addCalculation("By printing a table, we can manage formatting and display information in a neat way");
-    REPORT.block.finish();
-
-    // ---- TABLE EXAMPLE ---- //
-    var static_table = new ResultsTable(4); //number of rows
-
-    static_table.addColumn({
-        header: 'Name',
-        width: "140px",
-        data_function: function (i) {
-            return team_info[i].name
-        },
-        text_align: 'left'
-    });
-
-    static_table.addColumn({
-        header: 'Height',
-        units: "m",
-        width: "100px",
-        data_function: function (i) {
-            return (team_info[i].height + " m")
-        },
-        text_align: 'left'
-    });
-
-    static_table.addColumn({
-        header: 'Age',
-        data_function: function (i) {
-            return team_info[i].age
-        },
-        text_align: 'left'
-    });
-    static_table.report(REPORT);
-
-    REPORT.block.new();
-    REPORT.block.addResult("Tallest person: <strong style='color:green'>" + tallest_person + "</strong>")
-    REPORT.block.finish();
-
-    // QUICK TABLS
-    let table_data = [
-        ["Heading 1", "Heading 2", "Heading 3"],
-        ["Some Result", "1223", "kN"],
-        ["Some Other Result", "0.234", "MPa"],
-        ["Some Result", "1223", "kN"],
-        ["Some Other Result", "0.234", "MPa"],
-        ["Some Other Result", "0.234", "MPa"],
-    ]
-    let options = {
-        heading: "Simplified Table Method",
-        widths: ["50%", "25%", "25%"]
-    }
-    ReportHelpers.quickTable(table_data, options);
-
-
-
-    let graph = {
-        scale: 0.75, // default to 1, 1 is the max width of the centre column in the calculation reports
-        x_axis: {
-          title: 'x-axis', // OPTIONAL 
-          markers: 'auto', // OPTIONAL "auto" | "data" | "extremes"
-          include_0: false, // OPTIONAL by default it is false, but some graphs will want to see the axis line as a reference point
-        },
-        y_axis: {
-          title: 'y-axis', // OPTIONAL 
-          markers: 'auto', // OPTIONAL "auto" | "data" | "extremes"
-          include_0: true, // OPTIONAL by default it is false, but some graphs will want to see the axis line as a reference point
-        },
-        title: 'Graph Title', // OPTIONAL
-        aspect_ratio: 0.5, // OPTIONAL "equal" or "flexible" or ratio as "number". Default is equal which doesn't scale the graph coordinates
-        legend: 'top', // OPTIONAL "top" or "bottom"
-        chart_grid: true, // OPTIONAL defaut false
-        to_precision: 3, // OPTIONAL
-        // to_fixed: 3, // OPTIONAL
-        data: [
-          {
-            type: 'line', // points, line, or polygon
-            coordinates: [
-              [0, 0], [100, 50], [200, 50], [300, 0]
-            ],
-            colour: 'red',
-            name: 'points', // OPTIONAL
-            data_labels: { // OPTIONAL
-              text_anchor: "start",
-              text_color: "blue",
-              circle_color: "#BE2525"
-            },
-            projection: {
-              point: [0, 30],
-              projection_color: ['orange'],// OPTIONAL. if not given green is the default
-              projection_labels_x: ['Mry'],
-              projection_labels_y: ['N*']
-            }
+      for (let rebarNo in rebars) {
+        let {db} = rebars[rebarNo];
+        let rebarNo_ = parseInt(rebarNo);
+        let dia_90 = (rebarNo_ <= 8) ? 6*db : (rebarNo_ >= 14) ? 10*db : 8*db;
+        let lext_90 = 12*db;
+        let dia_180 = (rebarNo_ <= 8) ? 6*db : (rebarNo_ >= 14) ? 10*db : 8*db;
+        let lext_180 = Math.max(4*db, 2.5);
+        min_rebar_hook_in_tension[rebarNo] = {
+          '90': {
+            "inside_diameter": dia_90,
+            "l_ext": lext_90
           },
-          {
-            type: 'line', // points, line, or polygon
-            coordinates: [
-              [0, 0], [200, 150], [250, 150], [350, 0]
-            ],
-            colour: 'orange',
-            name: 'straight line', // OPTIONAL
-            data_labels: { // OPTIONAL
-              text_anchor: "start",
-              text_color: "black",
-              circle_color: "#BE2525"
-            },
-          },
-          {
-            type: 'line',
-            spline: true, // OPTIONAL
-            colour: 'darkred',
-            name: 'spline line', // OPTIONAL
-            coordinates: [
-              [0, 0], [100, 30], [200, 60], [300, 120]
-            ],
-          },
-      
-          {
-            type: 'polygon',
-            colour: 'green',
-            name: 'polygon', // OPTIONAL
-            coordinates: [
-              [100, 100], [200, 100], [200, 200], [100, 200]
-            ],
+          "180": {
+            "inside_diameter": dia_180,
+            "l_ext": lext_180
           }
-        ]
-    }
-    let figure_html = new Graph(graph).output();
-    ReportHelpers.print("", "<div style='width:50%'>"+figure_html+"</div>")
+        };
 
+        if (rebarNo_ <= 8) {
+          let stir_dia_90 = (rebarNo_ <= 5) ? 4*db : 6*db;
+          let stir_lext_90 = (rebarNo_ <= 5) ? Math.max(6*db, 3) : 12*db;
+          let stir_dia_180 = (rebarNo_ <= 5) ? 4*db : 6*db;
+          let stir_lext_180 = Math.max(4*db, 2.5);
+          let stir_dia_135 = (rebarNo_ <= 5) ? 4*db : 6*db;
+          let stir_lext_135 = Math.max(6*db, 3);
 
-    //do some calcs
-    var output = {
-        "results": {
-            "Sum": {
-                "value": h + b,
-                "info": "Simple summation "
+          min_rebar_hook_stirrups[rebarNo] = {
+            '90': {
+              "inside_diameter": stir_dia_90,
+              "l_ext": stir_lext_90
             },
-            "Area": { //old method, still works
-                "value": area,
-                "info": "Give more details on your result",
-                "unit": "mm <sup>2</sup>",
+            '135': {
+              "inside_diameter": stir_dia_135,
+              "l_ext": stir_lext_135
             },
-            "i_y": { //new method, makes it easier to use via the API
-                "label": "I<sub>Y</sub>, Moment of Inertia",
-                "value": moi,
-                "unit": "mm <sup>4</sup>",
-                "info": "Moment of Inertia of your Section"
-            },
-            "sub_heading_1": {
-              "unit": "heading",
-              "label": "UTILITY RATIOS"
-          },
-            "utility_ratio_1": { //new method, makes it easier to use via the API
-                "label": "Utility Ratio 1",
-                "value": 0.555,
-                "unit": "utility",
-                "info": "If your type == utility, it will automatically display PASS/FAIL"
-            },
-            "Utility Ratio 2": {
-                "value": 1.555,
-                "unit": "utility",
-                "info": "If your type == utility, it will automatically display PASS/FAIL"
+            "180": {
+              "inside_diameter": stir_dia_180,
+              "l_ext": stir_lext_180
             }
-        },
-        "report": REPORT
+          };
+        }
+
+      }
+      
+      this.min_rebar_hook_in_tension = min_rebar_hook_in_tension;
+      this.min_rebar_hook_stirrups = min_rebar_hook_stirrups;
+
+    }
+    generateCalcs(rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement, confiningReinfModFactor) {
+      REPORT.block.new(`For #${rebarNo}:`);
+
+      // REPORT.block.addCalculation(`Standard Hook Geometry for Development of Deformed bars in Tension:`);
+      // this.getMinStandardHookInTension(rebarNo, '90');
+      // this.getMinStandardHookInTension(rebarNo, '180');
+
+      // let this_rebar_data = this.min_rebar_hook_stirrups[rebarNo];
+      // if (this_rebar_data) {
+      //   REPORT.block.addCalculation(`Minimum inside bend diameters and standard hook geometry for stirrups, ties, and hoops`);
+      //   this.getMinStandardHookForStirrups(rebarNo, '90');
+      //   this.getMinStandardHookForStirrups(rebarNo, '135');
+      //   this.getMinStandardHookForStirrups(rebarNo, '180');
+      // }
+      
+      this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
+      this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor)
+
+      REPORT.block.finish();
+    }
+    getdb (rebarNo) {
+      return this.rebars[rebarNo].db;
+    }
+    getMinStandardHookInTension(rebarNo, hookType) {
+      let this_rebar_data = this.min_rebar_hook_in_tension[rebarNo];
+      let hook_type_name = `${hookType}&deg hook`;
+      ReportHelpers.lineResult(`Min. inside bend diameter (${hook_type_name})`, "D", prettyPrint(this_rebar_data[hookType].inside_diameter) + " in.");
+      ReportHelpers.lineResult(`Straight extension (${hook_type_name})`, "l_{ext}", prettyPrint(this_rebar_data[hookType].l_ext) + " in.");
+      return this_rebar_data[hookType];
+    }
+    getMinStandardHookForStirrups (rebarNo, hookType) {
+      let this_rebar_data = this.min_rebar_hook_stirrups[rebarNo];
+      if (!this_rebar_data) return null;
+      let hook_type_name = `${hookType}&deg hook`;
+      ReportHelpers.lineResult(`Min. inside bend diameter (${hook_type_name})`, "D", prettyPrint(this_rebar_data[hookType].inside_diameter) + " in.");
+      ReportHelpers.lineResult(`Min. straight extension (${hook_type_name})`, "l_{ext}", prettyPrint(this_rebar_data[hookType].l_ext) + " in.");
+      return this_rebar_data[hookType];
+    }
+    calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement) {
+      
+      // From Table 25.4.2.3
+      if (!epoxyModFactor) epoxyModFactor = 1.0;
+      if (!moreThan12InPlacedBelowHorizontalReinforcement) moreThan12InPlacedBelowHorizontalReinforcement = false;
+      let rebar_no_ = parseInt(rebarNo);
+      // From table 25.4.2.5
+      let psi_g = (this.fy == 40000 || this.fy == 60000) ? 1.0 : (this.fy == 80000) ? 1.15 : 1.3;
+      let psi_t = (moreThan12InPlacedBelowHorizontalReinforcement) ? 1.3 : 1.0;
+      let psi_s = (rebar_no_ >= 7) ? 1.0 : 0.8;
+      let psi_e = epoxyModFactor;
+
+      let psi_t_psi_e = psi_e*psi_t;
+      psi_t_psi_e = (psi_t_psi_e > 1.7) ? 1.7 : psi_t_psi_e;
+
+      let coefficient = (rebar_no_ <= 6 ) ? (1/25) : (1/20);
+      let coefficient_mathjax = (rebar_no_ <= 6 ) ? 25 : 20;
+      
+      let ld_coeff = (coefficient*psi_t_psi_e*psi_g*this.fy)/(this.lambda*Math.pow(this.fc,0.5));
+      // round ld_coeff to nearest whole number
+      ld_coeff = Math.ceil(ld_coeff);
+
+      // Calculate ld
+      let ld = ld_coeff*this.getdb(rebarNo);
+
+      REPORT.block.addCalculation(`<h3>Development length in tension:</h3> <br>Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
+      ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
+      ReportHelpers.lineResult("Modification factor for reinforcement grade", "\\psi_{g}", psi_g);
+      ReportHelpers.lineResult("Modification factor for epoxy coating", "\\psi_{e}", psi_e);
+      ReportHelpers.lineResult("Modification factor for casting position", "\\psi_{t}", psi_t);
+      ReportHelpers.lineResult("Product of [mathin] \\psi_{t} \\psi_{e}[mathin] need not exceed 1.7", "\\psi_{t}\\psi_{e}", psi_t_psi_e);
+      REPORT.block.addCalculation(`[math] l_{d} = \\frac{f_{y}\\psi_{t}\\psi_{e}\\psi_{g}}{${coefficient_mathjax} \\lambda \\sqrt{f'_{c}}} d_{b} [math]`);
+      REPORT.block.addCalculation(`[math] l_{d} = \\frac{(${this.fy})(${psi_t_psi_e})(${psi_g})}{${coefficient_mathjax} (${this.lambda}) \\sqrt{ ${this.fc} }} d_{b} = ${ld_coeff} d_{b} = ${prettyPrint(ld, 2)} in. [math]`);
+
+      let coefficient_othercase = (rebar_no_ <= 6 ) ? (3/50) : (3/40);
+      let coefficient_othercase_mathjax = (rebar_no_ <= 6 ) ? `\\frac{50}{3}` : `\\frac{40}{3}`;
+      let ld_coeff_othercase = (coefficient_othercase*psi_t_psi_e*psi_g*this.fy)/(this.lambda*Math.pow(this.fc,0.5));
+      // round ld_coeff to nearest whole number
+      ld_coeff_othercase = Math.ceil(ld_coeff_othercase);
+
+      // Calculate ld
+      let ld_othercase = ld_coeff_othercase*this.getdb(rebarNo);
+
+      REPORT.block.addCalculation(`Other Cases: [math] l_{d} = \\frac{f_{y}\\psi_{t}\\psi_{e}\\psi_{g}}{${coefficient_othercase_mathjax} \\lambda \\sqrt{f'_{c}}} d_{b} [math]`);
+      REPORT.block.addCalculation(`[math] l_{d} = \\frac{(${this.fy})(${psi_t_psi_e})(${psi_g})}{${coefficient_othercase_mathjax} (${this.lambda}) \\sqrt{ ${this.fc} }} d_{b} = ${ld_coeff_othercase} d_{b} = ${prettyPrint(ld_othercase, 2)} in. [math]`);
+
+      return {ld, ld_othercase};
+    }
+    calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor) {
+      
+      // From Table 25.4.3.2
+      if (!epoxyModFactor) epoxyModFactor = 1.0;
+      if (!confiningReinfModFactor) confiningReinfModFactor = 1.0;
+
+      let rebar_no_ = parseInt(rebarNo);
+
+      let psi_r = confiningReinfModFactor
+      let psi_e = epoxyModFactor;
+      let psi_o = 1.25
+      let psi_c = (this.fc < 6000) ? this.fc/15000 + 0.6 : 1.0
+
+      let ldh_coeff = (this.fy*psi_e*psi_r*psi_o*psi_c)/(55*this.lambda*Math.pow(this.fc,0.5));
+      // round ld_coeff to nearest whole number
+      ldh_coeff = Math.ceil(ldh_coeff);
+
+      // Calculate ld
+      let ldh = ldh_coeff*Math.pow(this.getdb(rebarNo),1.5);
+      ldh = Math.max(8*this.getdb(rebarNo), 6, ldh)
+
+      REPORT.block.addCalculation(`<h3>Development length of standard hooks in tension:</h3>`);
+      ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
+      ReportHelpers.lineResult("Modification factor for confining reinforcement", "\\psi_{r}", psi_r);
+      ReportHelpers.lineResult("Modification factor for epoxy coating", "\\psi_{e}", psi_e);
+      ReportHelpers.lineResult("Modification factor for location", "\\psi_{o}", psi_o);
+      ReportHelpers.lineResult("Modification factor for concrete strength", "\\psi_{c}", psi_c);
+      REPORT.block.addCalculation(`[math] l_{dh} = \\frac{f_{y}\\psi_{e}\\psi_{r}\\psi_{o}\\psi_{c}}{55 \\lambda \\sqrt{f'_{c}}} {d_{b}}^{1.5} > 8 d_{b}, 6 [math]`);
+      REPORT.block.addCalculation(`[math] l_{dh} = \\frac{(${this.fy})(${psi_e})(${psi_r})(${psi_o})(${psi_c})}{ 55 (${this.lambda}) \\sqrt{ ${this.fc} }} {d_{b}}^{1.5} = ${ldh_coeff} {d_{b}}^{1.5} > 8 d_{b}, 6 = ${prettyPrint(ldh, 2)} in. [math]`);
+
+      return ldh;
     }
 
-    return output;
+  }
 
-}
+
+  // TITLE
+  REPORT.block.new("<center>Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)</center>", 2);
+  REPORT.block.finish();
+
+  var rebar_data = new RebarDetails(fy, fc, lambda);
+
+  rebar_data.generateCalcs('3', 1.0, false, 1.0);
+
+  // customBlock({
+  //   title: "<h1>Development and Splice Length of Bars as per ACI 318-19</h1>", 
+  //   font_size: 1, 
+  //   reference: "",
+  //   content: '',
+  //   result: ''
+  // }, false, REPORT);
+
+
+  
+  var output = {
+    results: {
+      sub_heading_1: {
+        unit: "heading",
+        label: "Length",
+      },
+      fy_fc: {
+        "label": "Dummy Output",
+        "value": fc*fy,
+        "unit": "utility",
+      }
+    },
+    report: REPORT,
+  };
+
+  return output;
+};
