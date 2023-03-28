@@ -95,7 +95,7 @@ module.exports = function (input_json) {
 
     }
     generateCalcs(rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement, confiningReinfModFactor) {
-      REPORT.block.new(`For Rebar #${rebarNo}:`);
+      REPORT.block.new(`For Rebar #${rebarNo} - ${this.getdb(rebarNo)} in.:`);
 
       // REPORT.block.addCalculation(`Standard Hook Geometry for Development of Deformed bars in Tension:`);
       // this.getMinStandardHookInTension(rebarNo, '90');
@@ -109,9 +109,19 @@ module.exports = function (input_json) {
       //   this.getMinStandardHookForStirrups(rebarNo, '180');
       // }
       
-      this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
-      this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor);
-      this.calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor);
+      let {ld, ld_othercase} = this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
+      let ldh = this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor);
+      let ldc = this.calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor);
+
+      let lst_obj = this.calculateLapSpliceInTension(rebarNo, ld, ld_othercase);
+
+      let lsc;
+      if (lst_obj) lsc = this.calculateLapSpliceInCompression(rebarNo, lst_obj.code_conforming.A);
+
+      // {
+      //   'code_conforming': {"A": lst_A, "B": lst_B},
+      //   'other': {"A": lst_A_othercases, "B": lst_B_othercases},
+      // };
 
       REPORT.block.finish();
       REPORT.section.break()
@@ -141,7 +151,7 @@ module.exports = function (input_json) {
       if (!moreThan12InPlacedBelowHorizontalReinforcement) moreThan12InPlacedBelowHorizontalReinforcement = false;
       let rebar_no_ = parseInt(rebarNo);
       // From table 25.4.2.5
-      let psi_g = (this.fy == 40000 || this.fy == 60000) ? 1.0 : (this.fy == 80000) ? 1.15 : 1.3;
+      let psi_g = (this.fy <= 60000) ? 1.0 : (this.fy >= 80000) ? 1.15 : 1.3;
       let psi_t = (moreThan12InPlacedBelowHorizontalReinforcement) ? 1.3 : 1.0;
       let psi_s = (rebar_no_ >= 7) ? 1.0 : 0.8;
       let psi_e = epoxyModFactor;
@@ -158,9 +168,17 @@ module.exports = function (input_json) {
 
       // Calculate ld
       let ld = ld_coeff*this.getdb(rebarNo);
+      let coefficient_othercase = (rebar_no_ <= 6 ) ? (3/50) : (3/40);
+      let coefficient_othercase_mathjax = (rebar_no_ <= 6 ) ? `\\frac{50}{3}` : `\\frac{40}{3}`;
+      let ld_coeff_othercase = (coefficient_othercase*psi_t_psi_e*psi_g*this.fy)/(this.lambda*Math.pow(this.fc,0.5));
+      // round ld_coeff to nearest whole number
+      ld_coeff_othercase = Math.ceil(ld_coeff_othercase);
 
-      REPORT.block.addCalculation(`<h3>Development length in tension [mathin] l_{dh} [mathin]:</h3> <br>Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
-      
+      // Calculate ld
+      let ld_othercase = ld_coeff_othercase*this.getdb(rebarNo);
+
+      // GENERATE CALCS in REPORT
+      REPORT.block.addCalculation(`<h3>Development length in tension [mathin] l_{d} [mathin]:</h3> <br>Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
       REPORT.block.addReference(`Table 25.4.2.5`);
       ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
       ReportHelpers.lineResult("Modification factor for reinforcement grade", "\\psi_{g}", psi_g);
@@ -171,16 +189,6 @@ module.exports = function (input_json) {
       REPORT.block.addReference(`Table 25.4.2.3`);
       REPORT.block.addCalculation(`[math] l_{d} = \\frac{f_{y}\\psi_{t}\\psi_{e}\\psi_{g}}{${coefficient_mathjax} \\lambda \\sqrt{f'_{c}}} d_{b} [math]`);
       REPORT.block.addCalculation(`[math] l_{d} = \\frac{(${this.fy})(${psi_t_psi_e})(${psi_g})}{${coefficient_mathjax} (${this.lambda}) \\sqrt{ ${this.fc} }} d_{b} = ${ld_coeff} d_{b} = ${prettyPrint(ld, 2)} in. [math]`);
-
-      let coefficient_othercase = (rebar_no_ <= 6 ) ? (3/50) : (3/40);
-      let coefficient_othercase_mathjax = (rebar_no_ <= 6 ) ? `\\frac{50}{3}` : `\\frac{40}{3}`;
-      let ld_coeff_othercase = (coefficient_othercase*psi_t_psi_e*psi_g*this.fy)/(this.lambda*Math.pow(this.fc,0.5));
-      // round ld_coeff to nearest whole number
-      ld_coeff_othercase = Math.ceil(ld_coeff_othercase);
-
-      // Calculate ld
-      let ld_othercase = ld_coeff_othercase*this.getdb(rebarNo);
-
       REPORT.block.addCalculation(`Other Cases: [math] l_{d} = \\frac{f_{y}\\psi_{t}\\psi_{e}\\psi_{g}}{${coefficient_othercase_mathjax} \\lambda \\sqrt{f'_{c}}} d_{b} [math]`);
       REPORT.block.addCalculation(`[math] l_{d} = \\frac{(${this.fy})(${psi_t_psi_e})(${psi_g})}{${coefficient_othercase_mathjax} (${this.lambda}) \\sqrt{ ${this.fc} }} d_{b} = ${ld_coeff_othercase} d_{b} = ${prettyPrint(ld_othercase, 2)} in. [math]`);
 
@@ -207,8 +215,8 @@ module.exports = function (input_json) {
       let ldh = ldh_coeff*Math.pow(this.getdb(rebarNo),1.5);
       ldh = Math.max(8*this.getdb(rebarNo), 6, ldh);
 
+      // GENERATE CALCS in REPORT
       REPORT.block.addCalculation(`<h3>Development length of standard hooks in tension [mathin] l_{dh} [mathin]:</h3>`);
-
       REPORT.block.addReference(`Table 25.4.3.2`);
       ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
       ReportHelpers.lineResult("Modification factor for confining reinforcement", "\\psi_{r}", psi_r);
@@ -217,7 +225,6 @@ module.exports = function (input_json) {
       ReportHelpers.lineResult("Modification factor for concrete strength", "\\psi_{c}", psi_c);
       REPORT.block.addCalculation(`[mathin] l_{dh} [mathin] shall be greater of:`);
       // Section 25.4.3.1
-
       REPORT.block.addReference(`Section 25.4.3.1`);
       REPORT.block.addCalculation(`
         [math] \\frac{f_{y}\\psi_{e}\\psi_{r}\\psi_{o}\\psi_{c}}{55 \\lambda \\sqrt{f'_{c}}} {d_{b}}^{1.5} [math]
@@ -225,16 +232,26 @@ module.exports = function (input_json) {
         [math] 6in. [math]
       `);
       
-      REPORT.block.addCalculation(`[math] l_{dh} = \\frac{(${this.fy})(${psi_e})(${psi_r})(${psi_o})(${psi_c})}{ 55 (${this.lambda}) \\sqrt{ ${this.fc} }} {d_{b}}^{1.5} = ${ldh_coeff} {d_{b}}^{1.5} > 8 d_{b}, 6 = ${prettyPrint(ldh, 2)} in. [math]`);
+      REPORT.block.addCalculation(`[math] l_{dh} = \\frac{(${this.fy})(${psi_e})(${psi_r})(${psi_o})(${prettyPrint(psi_c)})}{ 55 (${this.lambda}) \\sqrt{ ${this.fc} }} {d_{b}}^{1.5} = ${ldh_coeff} {d_{b}}^{1.5} > 8 d_{b}, 6 = ${prettyPrint(ldh, 2)} in. [math]`);
 
       return ldh;
     }
     calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor) {
 
       if (!confiningReinfModFactor) confiningReinfModFactor = 1.0;
-      let rebar_no_ = parseInt(rebarNo);
       let psi_r = confiningReinfModFactor;
 
+      let ldc_1_coeff = (this.fy*psi_r)/(50*this.lambda*Math.pow(this.fc,0.5));
+      let ldc_2_coeff = 0.0003*this.fy*psi_r;
+      ldc_1_coeff = Math.ceil(ldc_1_coeff);
+      ldc_2_coeff = Math.ceil(ldc_2_coeff);
+      
+      let ldc_1 = ldc_1_coeff*this.getdb(rebarNo);
+      let ldc_2 = ldc_2_coeff*this.getdb(rebarNo);
+
+      let ldc = Math.max(ldc_1, ldc_2, 8);
+
+      // GENERATE CALCS in REPORT
       REPORT.block.addCalculation(`<h3>Development length of deformed bars in compression [mathin] l_{dc} [mathin]:</h3>`);
       ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
       ReportHelpers.lineResult("Modification factor for confining reinforcement", "\\psi_{r}", psi_r);
@@ -247,33 +264,99 @@ module.exports = function (input_json) {
         [math] 8in. [math]
       `);
 
-      let ldc_1_coeff = (this.fy*psi_r)/(50*this.lambda*Math.pow(this.fc,0.5));
-      let ldc_2_coeff = 0.0003*this.fy*psi_r;
-      ldc_1_coeff = Math.ceil(ldc_1_coeff);
-      ldc_2_coeff = Math.ceil(ldc_2_coeff);
-      
-      let ldc_1 = ldc_1_coeff*this.getdb(rebarNo);
-      let ldc_2 = ldc_2_coeff*this.getdb(rebarNo);
-
-      let ldc = Math.max(ldc_1, ldc_2, 8);
-      
       REPORT.block.addCalculation(`[math] \\frac{f_{y}\\psi_{r}}{50 \\lambda \\sqrt{f'_{c}}} d_{b} = \\frac{(${this.fy})(${psi_r})}{50 (${this.lambda}) \\sqrt{ ${this.fc} } } d_{b} = ${ldc_1_coeff} d_{b} = ${prettyPrint(ldc_1,2)} in. [math]`);
       REPORT.block.addCalculation(`[math] 0.0003 (${this.fy})(${psi_r}) d_{b} = ${ldc_2_coeff} d_{b} = ${prettyPrint(ldc_2,2)} in. [math]`);
       REPORT.block.addCalculation(`[math] l_{dc} = ${prettyPrint(ldc,2)} in. [math]`);
       
       return ldc;
     }
+    calculateLapSpliceInTension (rebarNo, ld, ldOtherCases) {
+      let rebar_no_ = parseInt(rebarNo);
+      if (rebar_no_ > 11) return null;
+      // Table 25.5.2.1
+      let lst_A = Math.max(12,1*ld)
+      let lst_B = Math.max(12,1.3*ld)
+
+      let lst_A_othercases = Math.max(12,1*ldOtherCases)
+      let lst_B_othercases = Math.max(12,1.3*ldOtherCases)
+      
+      // GENERATE CALCS in REPORT
+      REPORT.block.addCalculation(`<h3>Lap Splice lengths of deformed bars in tension [mathin] l_{st} [mathin]:</h3>`);
+      REPORT.block.addReference(`Table 25.5.2.1`); 
+      REPORT.block.addCalculation(`Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
+      
+      ReportHelpers.lineResult("Development length in tension", "l_{d}", prettyPrint(ld,2) + ' in.');
+      REPORT.block.addCalculation(`Class A: [math] l_{st,A} = 1.0l_{d} > 12 = ${prettyPrint(lst_A,2)} in. [math]`);
+      REPORT.block.addCalculation(`Class B: [math] l_{st,A} = 1.3l_{d} > 12 = ${prettyPrint(lst_B,2)} in. [math]`);
+      REPORT.block.addCalculation(`Other Cases:`);
+      ReportHelpers.lineResult("Development length in tension", "l_{d}", prettyPrint(ldOtherCases,2) + ' in.');
+      REPORT.block.addCalculation(`Class A: [math] l_{st,A} = 1.0l_{d} > 12 = ${prettyPrint(lst_A_othercases,2)} in. [math]`);
+      REPORT.block.addCalculation(`Class B: [math] l_{st,A} = 1.3l_{d} > 12 = ${prettyPrint(lst_B_othercases,2)} in. [math]`);
+      
+      return {
+        'code_conforming': {"A": lst_A, "B": lst_B},
+        'other': {"A": lst_A_othercases, "B": lst_B_othercases},
+      };
+
+    }
+    calculateLapSpliceInCompression(rebarNo, lst) {
+      
+      let rebar_no_ = parseInt(rebarNo);
+      if (rebar_no_ > 11) return null;
+
+      let fy = this.fy;
+      let fc = this.fc;
+      let lsc;
+      let db = this.getdb(rebarNo)
+
+      // GENERATE CALCS in REPORT
+      REPORT.block.addCalculation(`<h3>Lap Splice lengths of deformed bars in compression [mathin] l_{sc} [mathin]:</h3>`);
+      REPORT.block.addReference(`Section 25.5.5`);
+
+      if (fy <= 60000) {
+        lsc = Math.max( 0.0005*fy*db, 12);
+        REPORT.block.addCalculation(`For [mathin] f_{y} [mathin]: [math] l_{sc} = 0.0005 f_{y} d_{b} > 12 = ${prettyPrint(lsc,2)} in. [math]`);
+      } else if (fy > 60000 && fy <= 80000) {
+        lsc = Math.max( (0.0009*fy-24)*db, 12);
+        REPORT.block.addCalculation(`For [mathin] f_{y} [mathin]: [math] l_{sc} = (0.0009 f_{y} - 24) d_{b} > 12 = ${prettyPrint(lsc,2)} in. [math]`);        
+      } else {
+        ReportHelpers.lineResult("Lap Splice lengths of deformed bars in tension", "l_{st}", prettyPrint(lst,2) + ' in.');
+        lsc = Math.max( (0.0009*fy-24)*db, lst);
+        REPORT.block.addCalculation(`For [mathin] f_{y} [mathin]: [math] l_{sc} = (0.0009 f_{y} - 24) d_{b} > l_{st} = ${prettyPrint(lsc,2)} in. [math]`);        
+      }
+
+      if (fc < 3000) {
+        lsc = lsc*(4/3);
+        REPORT.block.addCalculation(`For [mathin] f'_{c} < 3000 psi [mathin]:
+          [math] l_{sc} = \\frac{4 l_{sc}} {3} = ${prettyPrint(lsc,2)} in.[math]
+        `);
+      } 
+
+      return lsc;
+    }
 
   }
 
 
   // TITLE
-  REPORT.block.new("<center>Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)</center>", 2);
+  REPORT.block.new("Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)", 2);
   REPORT.block.finish();
 
   var rebar_data = new RebarDetails(fy, fc, lambda);
 
-  rebar_data.generateCalcs('3', 1.0, false, 1.0);
+  let rebars = rebar_data.rebars
+
+  for (let rebarNo in rebars) {
+    rebar_data.generateCalcs(rebarNo, 1.0, false, 1.0);
+  }
+  
+  
+
+
+
+
+
+
 
   // customBlock({
   //   title: "<h1>Development and Splice Length of Bars as per ACI 318-19</h1>", 
