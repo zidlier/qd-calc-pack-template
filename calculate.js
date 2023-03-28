@@ -95,7 +95,7 @@ module.exports = function (input_json) {
 
     }
     generateCalcs(rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement, confiningReinfModFactor) {
-      REPORT.block.new(`For #${rebarNo}:`);
+      REPORT.block.new(`For Rebar #${rebarNo}:`);
 
       // REPORT.block.addCalculation(`Standard Hook Geometry for Development of Deformed bars in Tension:`);
       // this.getMinStandardHookInTension(rebarNo, '90');
@@ -110,9 +110,11 @@ module.exports = function (input_json) {
       // }
       
       this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
-      this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor)
+      this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor);
+      this.calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor);
 
       REPORT.block.finish();
+      REPORT.section.break()
     }
     getdb (rebarNo) {
       return this.rebars[rebarNo].db;
@@ -157,12 +159,16 @@ module.exports = function (input_json) {
       // Calculate ld
       let ld = ld_coeff*this.getdb(rebarNo);
 
-      REPORT.block.addCalculation(`<h3>Development length in tension:</h3> <br>Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
+      REPORT.block.addCalculation(`<h3>Development length in tension [mathin] l_{dh} [mathin]:</h3> <br>Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
+      
+      REPORT.block.addReference(`Table 25.4.2.5`);
       ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
       ReportHelpers.lineResult("Modification factor for reinforcement grade", "\\psi_{g}", psi_g);
       ReportHelpers.lineResult("Modification factor for epoxy coating", "\\psi_{e}", psi_e);
       ReportHelpers.lineResult("Modification factor for casting position", "\\psi_{t}", psi_t);
       ReportHelpers.lineResult("Product of [mathin] \\psi_{t} \\psi_{e}[mathin] need not exceed 1.7", "\\psi_{t}\\psi_{e}", psi_t_psi_e);
+      
+      REPORT.block.addReference(`Table 25.4.2.3`);
       REPORT.block.addCalculation(`[math] l_{d} = \\frac{f_{y}\\psi_{t}\\psi_{e}\\psi_{g}}{${coefficient_mathjax} \\lambda \\sqrt{f'_{c}}} d_{b} [math]`);
       REPORT.block.addCalculation(`[math] l_{d} = \\frac{(${this.fy})(${psi_t_psi_e})(${psi_g})}{${coefficient_mathjax} (${this.lambda}) \\sqrt{ ${this.fc} }} d_{b} = ${ld_coeff} d_{b} = ${prettyPrint(ld, 2)} in. [math]`);
 
@@ -188,10 +194,10 @@ module.exports = function (input_json) {
 
       let rebar_no_ = parseInt(rebarNo);
 
-      let psi_r = confiningReinfModFactor
+      let psi_r = confiningReinfModFactor;
       let psi_e = epoxyModFactor;
-      let psi_o = 1.25
-      let psi_c = (this.fc < 6000) ? this.fc/15000 + 0.6 : 1.0
+      let psi_o = 1.25;
+      let psi_c = (this.fc < 6000) ? this.fc/15000 + 0.6 : 1.0;
 
       let ldh_coeff = (this.fy*psi_e*psi_r*psi_o*psi_c)/(55*this.lambda*Math.pow(this.fc,0.5));
       // round ld_coeff to nearest whole number
@@ -199,18 +205,63 @@ module.exports = function (input_json) {
 
       // Calculate ld
       let ldh = ldh_coeff*Math.pow(this.getdb(rebarNo),1.5);
-      ldh = Math.max(8*this.getdb(rebarNo), 6, ldh)
+      ldh = Math.max(8*this.getdb(rebarNo), 6, ldh);
 
-      REPORT.block.addCalculation(`<h3>Development length of standard hooks in tension:</h3>`);
+      REPORT.block.addCalculation(`<h3>Development length of standard hooks in tension [mathin] l_{dh} [mathin]:</h3>`);
+
+      REPORT.block.addReference(`Table 25.4.3.2`);
       ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
       ReportHelpers.lineResult("Modification factor for confining reinforcement", "\\psi_{r}", psi_r);
       ReportHelpers.lineResult("Modification factor for epoxy coating", "\\psi_{e}", psi_e);
       ReportHelpers.lineResult("Modification factor for location", "\\psi_{o}", psi_o);
       ReportHelpers.lineResult("Modification factor for concrete strength", "\\psi_{c}", psi_c);
-      REPORT.block.addCalculation(`[math] l_{dh} = \\frac{f_{y}\\psi_{e}\\psi_{r}\\psi_{o}\\psi_{c}}{55 \\lambda \\sqrt{f'_{c}}} {d_{b}}^{1.5} > 8 d_{b}, 6 [math]`);
+      REPORT.block.addCalculation(`[mathin] l_{dh} [mathin] shall be greater of:`);
+      // Section 25.4.3.1
+
+      REPORT.block.addReference(`Section 25.4.3.1`);
+      REPORT.block.addCalculation(`
+        [math] \\frac{f_{y}\\psi_{e}\\psi_{r}\\psi_{o}\\psi_{c}}{55 \\lambda \\sqrt{f'_{c}}} {d_{b}}^{1.5} [math]
+        [math] 8d_{b} [math]
+        [math] 6in. [math]
+      `);
+      
       REPORT.block.addCalculation(`[math] l_{dh} = \\frac{(${this.fy})(${psi_e})(${psi_r})(${psi_o})(${psi_c})}{ 55 (${this.lambda}) \\sqrt{ ${this.fc} }} {d_{b}}^{1.5} = ${ldh_coeff} {d_{b}}^{1.5} > 8 d_{b}, 6 = ${prettyPrint(ldh, 2)} in. [math]`);
 
       return ldh;
+    }
+    calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor) {
+
+      if (!confiningReinfModFactor) confiningReinfModFactor = 1.0;
+      let rebar_no_ = parseInt(rebarNo);
+      let psi_r = confiningReinfModFactor;
+
+      REPORT.block.addCalculation(`<h3>Development length of deformed bars in compression [mathin] l_{dc} [mathin]:</h3>`);
+      ReportHelpers.lineResult("Modification factor for concrete", "\\lambda", this.lambda);
+      ReportHelpers.lineResult("Modification factor for confining reinforcement", "\\psi_{r}", psi_r);
+      REPORT.block.addCalculation(`[mathin] l_{dc} [mathin] shall be greater of:`);
+      // Section 25.4.9
+      REPORT.block.addReference(`Section 25.4.9`);
+      REPORT.block.addCalculation(`
+        [math] \\frac{f_{y}\\psi_{r}}{50 \\lambda \\sqrt{f'_{c}}} d_{b} [math]
+        [math] 0.0003 f_{y} \\psi_{r} d_{b} [math]
+        [math] 8in. [math]
+      `);
+
+      let ldc_1_coeff = (this.fy*psi_r)/(50*this.lambda*Math.pow(this.fc,0.5));
+      let ldc_2_coeff = 0.0003*this.fy*psi_r;
+      ldc_1_coeff = Math.ceil(ldc_1_coeff);
+      ldc_2_coeff = Math.ceil(ldc_2_coeff);
+      
+      let ldc_1 = ldc_1_coeff*this.getdb(rebarNo);
+      let ldc_2 = ldc_2_coeff*this.getdb(rebarNo);
+
+      let ldc = Math.max(ldc_1, ldc_2, 8);
+      
+      REPORT.block.addCalculation(`[math] \\frac{f_{y}\\psi_{r}}{50 \\lambda \\sqrt{f'_{c}}} d_{b} = \\frac{(${this.fy})(${psi_r})}{50 (${this.lambda}) \\sqrt{ ${this.fc} } } d_{b} = ${ldc_1_coeff} d_{b} = ${prettyPrint(ldc_1,2)} in. [math]`);
+      REPORT.block.addCalculation(`[math] 0.0003 (${this.fy})(${psi_r}) d_{b} = ${ldc_2_coeff} d_{b} = ${prettyPrint(ldc_2,2)} in. [math]`);
+      REPORT.block.addCalculation(`[math] l_{dc} = ${prettyPrint(ldc,2)} in. [math]`);
+      
+      return ldc;
     }
 
   }
