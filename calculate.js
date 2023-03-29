@@ -560,6 +560,223 @@ module.exports = function (input_json) {
     }
   }
 
+  // Reusable function for generating table
+  function generateResultsTable (header, data, options) {
+    let table_data = [...header, ...data];
+    options.text_aligns = "center";
+    ReportHelpers.quickTable(table_data, options);
+  }
+
+  function generateAllResults (summaryTable, showImages, fy, fc) {
+    let straight_ld_data = [];
+    let hook_90deg_bend_data = [];
+    let hook_180deg_bend_data = [];
+    let splice_data = [];
+    let stirrup_geometry_data = [];
+
+    summaryTable.map(obj => {
+      let {
+        rebar_name,
+        rebar_diameter,
+        rebar_area,
+        ld_top,
+        ld_bottom,
+        ldh,
+        bend_geometry_tension,
+        ldc, 
+        lsc, 
+        lst,
+        stirrup_geometry
+      } = obj;
+
+      splice_data.push([
+        rebar_name,
+        rebar_diameter,
+        prettyPrint(lsc,2),
+        prettyPrint(lst.A,2),
+        prettyPrint(lst.B,2)
+      ]);
+
+      hook_90deg_bend_data.push([
+        rebar_name,
+        rebar_diameter,
+        prettyPrint(ldh,2),
+        prettyPrint(bend_geometry_tension['90'].l_ext,2),
+        prettyPrint(bend_geometry_tension['90'].inside_diameter,2),
+      ]);
+
+      hook_180deg_bend_data.push([
+        rebar_name,
+        rebar_diameter,
+        prettyPrint(ldh,2),
+        prettyPrint(bend_geometry_tension['180'].l_ext,2),
+        prettyPrint(bend_geometry_tension['180'].inside_diameter,2),
+      ]);
+
+
+      straight_ld_data.push([
+        rebar_name,
+        rebar_diameter,
+        prettyPrint(ld_top,2),
+        prettyPrint(ld_bottom,2),
+        prettyPrint(ldc,2)
+      ]);
+
+      if (stirrup_geometry) {
+        stirrup_geometry_data.push([
+          rebar_name,
+          rebar_diameter,
+          prettyPrint(stirrup_geometry['90'].l_ext,2),
+          prettyPrint(stirrup_geometry['90'].inside_diameter,2),
+          prettyPrint(stirrup_geometry['135'].l_ext,2),
+          prettyPrint(stirrup_geometry['135'].inside_diameter,2),
+          prettyPrint(stirrup_geometry['180'].l_ext,2),
+          prettyPrint(stirrup_geometry['180'].inside_diameter,2),
+        ]);
+      }
+
+    });
+
+    // Generate development length summary table for straight bars
+    let straight_ld_data_header = [
+      [
+        "Rebar", 
+        "Bar Dia.<br>in.", 
+        "Top Bars<br>Tension<br>l<sub>d</sub> in.",
+        "Bottom Bars<br>Tension<br>l<sub>d</sub> in.",
+        "Compression<br>l<sub>dc</sub> in.", 
+      ]
+    ];
+    
+    generateResultsTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
+
+    if (showImages) {
+      ReportHelpers.image({
+        new_block: true,
+        src: ld_image_beam,
+        width: "80%"
+      });
+  
+      // ldc
+      ReportHelpers.image({
+        new_block: true,
+        src: ldc_image,
+        width: "60%"
+      });
+    }
+   
+    // Generate development length summary table for hooked bars
+    let hook_90deg_bend_data_header = [
+      [
+        "Rebar", 
+        "Bar Dia.<br>in.",
+        "Hook<br>l<sub>dh</sub> in.",
+        "90&deg Hook<br>l<sub>ext</sub> in.", 
+        "90&deg<br>Inside Dia.<br>D in.", 
+      ]
+    ];
+
+    let hook_180deg_bend_data_header = [
+      [
+        "Rebar", 
+        "Bar Dia.<br>in.",
+        "Hook<br>l<sub>dh</sub> in.",
+        "180&deg Hook<br>l<sub>ext</sub> in.", 
+        "180&deg<br>Inside Dia.<br>D in."
+      ]
+    ];
+
+    generateResultsTable (hook_90deg_bend_data_header, hook_90deg_bend_data, {heading: `90&deg Hook Development Length and Geometry for deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
+    
+    if (showImages) {
+      // add hook figure
+      ReportHelpers.image({
+        new_block: true,
+        src: hook_90deg_img,
+        width: "80%"
+      });
+    }
+    
+    generateResultsTable (hook_180deg_bend_data_header, hook_180deg_bend_data, {heading: `180&deg Hook Development Length and Geometry deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
+    
+    if (showImages) {
+      // add hook figure
+      ReportHelpers.image({
+        new_block: true,
+        src: hook_180deg_img,
+        width: "80%"
+      });
+    }
+    
+    // Generate standard hook geometry for stirrups
+    let stirrup_geometry_data_header = [
+      [
+        "Rebar", 
+        "Bar Dia.<br>in.",
+        "90&deg Hook<br>l<sub>ext</sub> in.", 
+        "90&deg<br>Inside Dia.<br>D in.",
+        "135&deg Hook<br>l<sub>ext</sub> in.", 
+        "135&deg<br>Inside Dia.<br>D in.",
+        "180&deg Hook<br>l<sub>ext</sub> in.", 
+        "180&deg<br>Inside Dia.<br>D in.",
+      ]
+    ]; 
+
+    generateResultsTable (stirrup_geometry_data_header, stirrup_geometry_data, {heading: `Standard hook geometry for stirrups, ties, and hoops<br><br>fy = ${fy} psi and f'c = ${fc} psi`,});
+
+    if (showImages) {
+      ReportHelpers.image({
+        new_block: true,
+        src: stirrup_bend_90,
+        width: "80%"
+      });
+  
+      // add hook figure
+      ReportHelpers.image({
+        new_block: true,
+        src: stirrup_bend_135,
+        width: "80%"
+      });
+  
+      // add hook figure
+      ReportHelpers.image({
+        new_block: true,
+        src: stirrup_bend_180,
+        width: "80%"
+      });
+    }
+    
+    // Generate splice length table summary for each rebar
+    let splice_data_header = [
+      [
+        "Rebar", 
+        "Bar Dia.<br>in.",
+        "Splice length<br>(compression)<br>l<sub>sc</sub> in.", 
+        "Class A <br>splice length<br>(tension)<br>l<sub>st</sub> in.", 
+        "Class B <br>splice length<br>(tension)<br>l<sub>st</sub> in.",
+      ]
+    ];
+
+    generateResultsTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
+    
+    if (showImages) {
+      // Compression splice
+      ReportHelpers.image({
+        new_block: true,
+        src: lst_image,
+        width: "100%"
+      });
+
+      // Compression splice
+      ReportHelpers.image({
+        new_block: true,
+        src: lsc_image,
+        width: "60%"
+      });
+    }
+
+  }
+
   // TITLE
   REPORT.block.new("Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)", 2);
   REPORT.block.finish();
@@ -571,227 +788,13 @@ module.exports = function (input_json) {
   // Generate Summary table 
   var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
 
-  // Store data for ld, ldh, and splice length
-  let straight_ld_data = [];
-  let hook_90deg_bend_data = [];
-  let hook_180deg_bend_data = [];
-  let splice_data = [];
-  
-  let stirrup_geometry_data = [];
-
-  summary_table_data.map(obj => {
-    let {
-      rebar_name,
-      rebar_diameter,
-      rebar_area,
-      ld_top,
-      ld_bottom,
-      ldh,
-      bend_geometry_tension,
-      ldc, 
-      lsc, 
-      lst,
-      stirrup_geometry
-    } = obj;
-
-    splice_data.push([
-      rebar_name,
-      rebar_diameter,
-      prettyPrint(lsc,2),
-      prettyPrint(lst.A,2),
-      prettyPrint(lst.B,2)
-    ]);
-
-    hook_90deg_bend_data.push([
-      rebar_name,
-      rebar_diameter,
-      prettyPrint(ldh,2),
-      prettyPrint(bend_geometry_tension['90'].l_ext,2),
-      prettyPrint(bend_geometry_tension['90'].inside_diameter,2),
-    ]);
-
-    hook_180deg_bend_data.push([
-      rebar_name,
-      rebar_diameter,
-      prettyPrint(ldh,2),
-      prettyPrint(bend_geometry_tension['180'].l_ext,2),
-      prettyPrint(bend_geometry_tension['180'].inside_diameter,2),
-    ]);
-
-
-    straight_ld_data.push([
-      rebar_name,
-      rebar_diameter,
-      prettyPrint(ld_top,2),
-      prettyPrint(ld_bottom,2),
-      prettyPrint(ldc,2)
-    ]);
-
-    if (stirrup_geometry) {
-      stirrup_geometry_data.push([
-        rebar_name,
-        rebar_diameter,
-        prettyPrint(stirrup_geometry['90'].l_ext,2),
-        prettyPrint(stirrup_geometry['90'].inside_diameter,2),
-        prettyPrint(stirrup_geometry['135'].l_ext,2),
-        prettyPrint(stirrup_geometry['135'].inside_diameter,2),
-        prettyPrint(stirrup_geometry['180'].l_ext,2),
-        prettyPrint(stirrup_geometry['180'].inside_diameter,2),
-      ]);
-    }
-
-  });
-
-  // Reusable function for generating table
-  function generateResultsTable (header, data, options) {
-    let table_data = [...header, ...data];
-    options.text_aligns = "center";
-    ReportHelpers.quickTable(table_data, options);
-  }
-
-
-  // Generate development length summary table for straight bars
-  let straight_ld_data_header = [
-    [
-      "Rebar", 
-      "Bar Dia.<br>in.", 
-      "Top Bars<br>Tension<br>l<sub>d</sub> in.",
-      "Bottom Bars<br>Tension<br>l<sub>d</sub> in.",
-      "Compression<br>l<sub>dc</sub> in.", 
-    ]
-  ];
-  
-  generateResultsTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-
-  ReportHelpers.image({
-    new_block: true,
-    src: ld_image_beam,
-    width: "80%"
-  });
-
-  // ldc
-  ReportHelpers.image({
-    new_block: true,
-    src: ldc_image,
-    width: "60%"
-  });
-  
-  // Generate development length summary table for hooked bars
-  let hook_90deg_bend_data_header = [
-    [
-      "Rebar", 
-      "Bar Dia.<br>in.",
-      "Hook<br>l<sub>dh</sub> in.",
-      "90&deg Hook<br>l<sub>ext</sub> in.", 
-      "90&deg<br>Inside Dia.<br>D in.", 
-    ]
-  ];
-
-  let hook_180deg_bend_data_header = [
-    [
-      "Rebar", 
-      "Bar Dia.<br>in.",
-      "Hook<br>l<sub>dh</sub> in.",
-      "180&deg Hook<br>l<sub>ext</sub> in.", 
-      "180&deg<br>Inside Dia.<br>D in."
-    ]
-  ];
-
-  generateResultsTable (hook_90deg_bend_data_header, hook_90deg_bend_data, {heading: `90&deg Hook Development Length and Geometry for deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
-  
-  // add hook figure
-  ReportHelpers.image({
-    new_block: true,
-    src: hook_90deg_img,
-    width: "80%"
-  });
-
-  generateResultsTable (hook_180deg_bend_data_header, hook_180deg_bend_data, {heading: `180&deg Hook Development Length and Geometry deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
-  
-  // add hook figure
-  ReportHelpers.image({
-    new_block: true,
-    src: hook_180deg_img,
-    width: "80%"
-  });
-
-
-  // Generate standard hook geometry for stirrups
-  let stirrup_geometry_data_header = [
-    [
-      "Rebar", 
-      "Bar Dia.<br>in.",
-      "90&deg Hook<br>l<sub>ext</sub> in.", 
-      "90&deg<br>Inside Dia.<br>D in.",
-      "135&deg Hook<br>l<sub>ext</sub> in.", 
-      "135&deg<br>Inside Dia.<br>D in.",
-      "180&deg Hook<br>l<sub>ext</sub> in.", 
-      "180&deg<br>Inside Dia.<br>D in.",
-    ]
-  ]; 
-
-  generateResultsTable (stirrup_geometry_data_header, stirrup_geometry_data, {heading: `Standard hook geometry for stirrups, ties, and hoops<br><br>fy = ${fy} psi and f'c = ${fc} psi`,});
-
-  ReportHelpers.image({
-    new_block: true,
-    src: stirrup_bend_90,
-    width: "80%"
-  });
-
-  // add hook figure
-  ReportHelpers.image({
-    new_block: true,
-    src: stirrup_bend_135,
-    width: "80%"
-  });
-
-  // add hook figure
-  ReportHelpers.image({
-    new_block: true,
-    src: stirrup_bend_180,
-    width: "80%"
-  });
-
-
-  // Generate splice length table summary for each rebar
-  let splice_data_header = [
-    [
-      "Rebar", 
-      "Bar Dia.<br>in.",
-      "Splice length<br>(compression)<br>l<sub>sc</sub> in.", 
-      "Class A <br>splice length<br>(tension)<br>l<sub>st</sub> in.", 
-      "Class B <br>splice length<br>(tension)<br>l<sub>st</sub> in.",
-    ]
-  ];
-
-  generateResultsTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-  
-  // Compression splice
-  ReportHelpers.image({
-    new_block: true,
-    src: lst_image,
-    width: "100%"
-  });
-
-  // Compression splice
-  ReportHelpers.image({
-    new_block: true,
-    src: lsc_image,
-    width: "60%"
-  });
-
+  generateAllResults(summary_table_data, true, fy, fc)
 
   REPORT.block.finish();
   REPORT.section.break();
 
-
-
   // CALCULATE development and splice length for the specifed rebar diameter
   let db_detail = rebar_data.generateCalcs(db, psi_e, false, psi_r, psi_o, true);
-
-  // Sample Output
-  // logger(db_detail)
-  // {"rebar_name":"#3","rebar_diameter":0.375,"ld_top":{"ld":14.25,"ld_othercase":21.375},"ld_bottom":{"ld":11.25,"ld_othercase":16.5},"ldh":6,"ldc":8,"lst":{"A":12,"B":14.625},"lsc":12,"ldh_seismic":6,"bend_geometry_tension":{"90":{"inside_diameter":2.25,"l_ext":4.5},"180":{"inside_diameter":2.25,"l_ext":2.5}},"stirrup_geometry":{"90":{"inside_diameter":1.5,"l_ext":3},"135":{"inside_diameter":1.5,"l_ext":3},"180":{"inside_diameter":1.5,"l_ext":2.5}}}
 
   var output = {
     results: {
@@ -840,8 +843,6 @@ module.exports = function (input_json) {
     },
     report: REPORT,
   };
-
-  console.log(output.results)
 
   return output;
 
