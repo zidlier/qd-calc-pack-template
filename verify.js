@@ -385,17 +385,583 @@ let psi_r = 1.0
 let psi_o = 1.0
 
 
-let fc_arr = [3000,4000,5000,6000,8000,10000]
-let fy_arr = [40000,60000,80000,100000]
-let condition_arr = ['case_a', 'other_cases']
+let comparison_result_ld = []
+let comparison_result_ldh = []
+let comparison_result_ldc = []
+
+let verified_data = [
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 19.5,
+      "ld_top_darwin": 24.75,
+      "ldc_darwin": 10,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 28.5,
+      "ld_top_darwin": 37.5,
+      "ldc_darwin": 15,
+      "ld_bottom_aci": 28.5,
+      "ldh_aci": 9.7
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 44.25,
+      "ld_top_darwin": 57,
+      "ldc_darwin": 19,
+      "ld_bottom_aci": 43.5,
+      "ldh_aci": 12.9
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 62.25,
+      "ld_top_darwin": 80.25,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 61.5,
+      "ldh_aci": 16.2
+    },
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 28.5,
+      "ld_top_darwin": 37.5,
+      "ldc_darwin": 10,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 42.75,
+      "ld_top_darwin": 55.5,
+      "ldc_darwin": 15,
+      "ld_bottom_aci": 42.75,
+      "ldh_aci": 9.7
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 66,
+      "ld_top_darwin": 85.5,
+      "ldc_darwin": 19,
+      "ld_bottom_aci": 65.25,
+      "ldh_aci": 12.9
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 93,
+      "ld_top_darwin": 120.75,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 92.25,
+      "ldh_aci": 16.2
+    },
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 17.25,
+      "ld_top_darwin": 22.5,
+      "ldc_darwin": 9,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 25.5,
+      "ld_top_darwin": 33.75,
+      "ldc_darwin": 14,
+      "ld_bottom_aci": 25.5,
+      "ldh_aci": 9.4
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 39.75,
+      "ld_top_darwin": 51,
+      "ldc_darwin": 18,
+      "ld_bottom_aci": 39,
+      "ldh_aci": 11.6
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 55.5,
+      "ld_top_darwin": 72,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 55.5,
+      "ldh_aci": 15.6
+    },
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 25.5,
+      "ld_top_darwin": 33.75,
+      "ldc_darwin": 9,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 38.25,
+      "ld_top_darwin": 50.25,
+      "ldc_darwin": 14,
+      "ld_bottom_aci": 38.25,
+      "ldh_aci": 9.4
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 59.25,
+      "ld_top_darwin": 76.5,
+      "ldc_darwin": 18,
+      "ld_bottom_aci": 58.5,
+      "ldh_aci": 11.6
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 83.25,
+      "ld_top_darwin": 108,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 82.5,
+      "ldh_aci": 15.6
+    },
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 15.75,
+      "ld_top_darwin": 20.25,
+      "ldc_darwin": 9,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 23.25,
+      "ld_top_darwin": 30.75,
+      "ldc_darwin": 14,
+      "ld_bottom_aci": 23.25,
+      "ldh_aci": 9.1
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 36,
+      "ld_top_darwin": 46.5,
+      "ldc_darwin": 18,
+      "ld_bottom_aci": 36,
+      "ldh_aci": 12.2
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 51,
+      "ld_top_darwin": 66,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 50.25,
+      "ldh_aci": 15.2
+    },
+    {
+      "rebar": "#6",
+      "fy": 40000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 23.25,
+      "ld_top_darwin": 30.75,
+      "ldc_darwin": 9,
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#6",
+      "fy": 60000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 35.25,
+      "ld_top_darwin": 45.75,
+      "ldc_darwin": 14,
+      "ld_bottom_aci": 34.5,
+      "ldh_aci": 9.1
+    },
+    {
+      "rebar": "#6",
+      "fy": 80000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 54,
+      "ld_top_darwin": 69.75,
+      "ldc_darwin": 18,
+      "ld_bottom_aci": 44.25,
+      "ldh_aci": 12.2
+    },
+    {
+      "rebar": "#6",
+      "fy": 100000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 75.75,
+      "ld_top_darwin": 98.25,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 75.75,
+      "ldh_aci": 15.2
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 32,
+      "ld_top_darwin": 42,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 48,
+      "ld_top_darwin": 62,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 47,
+      "ldh_aci": 14.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 73,
+      "ld_top_darwin": 95,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 73,
+      "ldh_aci": 19.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 4000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 103,
+      "ld_top_darwin": 134,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 103,
+      "ldh_aci": 24.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 48,
+      "ld_top_darwin": 62,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 72,
+      "ld_top_darwin": 93,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 71,
+      "ldh_aci": 14.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 110,
+      "ld_top_darwin": 142,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 109,
+      "ldh_aci": 19.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 4000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 155,
+      "ld_top_darwin": 201,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 154,
+      "ldh_aci": 24.9
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 29,
+      "ld_top_darwin": 37,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 43,
+      "ld_top_darwin": 56,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 42,
+      "ldh_aci": 14.4
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 66,
+      "ld_top_darwin": 85,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 65,
+      "ldh_aci": 17.8
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 5000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 92,
+      "ld_top_darwin": 120,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 92,
+      "ldh_aci": 24
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 43,
+      "ld_top_darwin": 56,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 64,
+      "ld_top_darwin": 83,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 64,
+      "ldh_aci": 14.4
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 98,
+      "ld_top_darwin": 127,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 98,
+      "ldh_aci": 17.8
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 5000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 138,
+      "ld_top_darwin": 180,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 138,
+      "ldh_aci": 24
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 26,
+      "ld_top_darwin": 34,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 39,
+      "ld_top_darwin": 51,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 39,
+      "ldh_aci": 14.1
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 60,
+      "ld_top_darwin": 78,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 59,
+      "ldh_aci": 18.8
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 6000,
+      "condition": "case_a",
+      "ld_bottom_darwin": 84,
+      "ld_top_darwin": 110,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 84,
+      "ldh_aci": 23.5
+    },
+    {
+      "rebar": "#8",
+      "fy": 40000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 39,
+      "ld_top_darwin": 51,
+      "ldc_darwin": "",
+      "ld_bottom_aci": "",
+      "ldh_aci": ""
+    },
+    {
+      "rebar": "#8",
+      "fy": 60000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 59,
+      "ld_top_darwin": 76,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 58,
+      "ldh_aci": 14.1
+    },
+    {
+      "rebar": "#8",
+      "fy": 80000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 90,
+      "ld_top_darwin": 116,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 89,
+      "ldh_aci": 18.8
+    },
+    {
+      "rebar": "#8",
+      "fy": 100000,
+      "fc": 6000,
+      "condition": "other_cases",
+      "ld_bottom_darwin": 126,
+      "ld_top_darwin": 164,
+      "ldc_darwin": "",
+      "ld_bottom_aci": 126,
+      "ldh_aci": 23.5
+    }
+]
+
+verified_data.map(obj => {
+    let res_obj_ld = {}
+    let res_obj_ldc = {}
+    let res_obj_ldh = {}
+
+    let {rebar, fy, fc, condition, ld_bottom_darwin, ld_bottom_aci, ld_top_darwin, ldc_darwin, ldh_aci} = obj
+
+    let this_rebar = new RebarDetails(fy, fc, lambda, condition);
+    let this_rebar_detail = this_rebar.generateCalcs(rebar, psi_e, false, psi_r, psi_o, false);
+    let {ldh, ld_top, ld_bottom, ldc} = this_rebar_detail
+
+    res_obj_ld = {
+        rebar, fy, fc, condition, ld_bottom_darwin, ld_bottom_aci, ld_bottom, ld_top_darwin, ld_top
+    }
+    
+    res_obj_ldh = {
+        rebar, fy, fc, condition, ldh_aci, ldh, dif: (ldh_aci != '') ? ldh-ldh_aci : ''
+    }
+
+    res_obj_ldc = {
+        rebar, fy, fc, condition, ldc_darwin, ldc, dif: (ldc_darwin != '') ? ldc-ldc_darwin : ''
+    }
+
+    comparison_result_ld.push(res_obj_ld)
+    comparison_result_ldh.push(res_obj_ldh)
+    comparison_result_ldc.push(res_obj_ldc)
+
+})
 
 
-fy, fc,condition
+console.log('Comparing ld')
+// console.table(comparison_result_ld)
+
+console.log(JSON.stringify(comparison_result_ld))
+
+console.log('Comparing ldh')
+// console.table(comparison_result_ldh)
+console.log(JSON.stringify(comparison_result_ldh))
 
 
-var rebar_data = new RebarDetails(fy, fc, lambda, condition);
+console.log('Comparing ldc')
+// console.table(comparison_result_ldc)
+console.log(JSON.stringify(comparison_result_ldc))
+
   
-// CALCULATE ALL LENGTH FOR REBAR DIAMETER
-// Generate Summary table 
-var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
-summary_table_data.getOutput()
