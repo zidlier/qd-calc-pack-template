@@ -1,0 +1,14 @@
+{
+  "ld_bottom": {
+    "value": 48,
+    "units": "in"
+  },
+  "ld_top": {
+    "value": 62,
+    "units": "in"
+  },
+  "ldc": {
+    "value": 19,
+    "units": "in"
+  }
+}  

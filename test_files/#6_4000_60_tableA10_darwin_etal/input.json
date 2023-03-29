@@ -6,6 +6,7 @@
     "psi_r": 1,
     "psi_o": 1,
     "db": "#6",
+    "condition": "case_a",
     "project_details": {
         "units": {
             "project_units": ""

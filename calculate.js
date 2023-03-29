@@ -1,6 +1,6 @@
 module.exports = function (input_json) {
 
-  let {fy, fc, lambda, psi_e,psi_r, psi_o, db} = input_json;
+  let {fy, fc, lambda, psi_e,psi_r, psi_o, db, condition} = input_json;
 
   const ldc_image = `data:image/png;base64,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KKihjApsxGnVSbGQpv2Ej3/Q9UvkUshVBiPHAqrQILt+8D/43a1VmJzwksIJoPvFcT5GgNAu0Kw7zvex4zRPgOAzcKW3/dUGMPNJer2txY6A/m3g4rqtKXvA5Q4w8GTIpuxKQZpCoQC8n9E35YDILdC75vXW2sfpA5ChrlI3wMEhMFqk7HWfd/d09vbvmVZ/PzJBco1zxY6FAAANGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDo5N2QyNTllMS0xYjBmLTQxMGUtOWM5ZS1iZWFiMWVkY2JjNjMiCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OWYxODc3ZTYtZDUxNy00NTJlLWIzOWEtMzJlYTk2OTI3MTAyIgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NDA0MWExYzQtNmE1ZS00NTc4LTgzNzYtNjJlNzgzMGFiMmQ0IgogICBkYzpGb3JtYXQ9ImltYWdlL3BuZyIKICAgR0lNUDpBUEk9IjIuMCIKICAgR0lNUDpQbGF0Zm9ybT0iTGludXgiCiAgIEdJTVA6VGltZVN0YW1wPSIxNjgwMDU2MzkwNDQyNDY1IgogICBHSU1QOlZlcnNpb249IjIuMTAuMzAiCiAgIHRpZmY6T3JpZW50YXRpb249IjEiCiAgIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiCiAgICAgIHN0RXZ0OmNoYW5nZWQ9Ii8iCiAgICAgIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NTIxZGY5MTUtMmNlNy00Y2U3LWI4NjAtOGE4MjAwZGQ2YmM0IgogICAgICBzdEV2dDpzb2Z0d2FyZUFnZW50PSJHaW1wIDIuMTAgKExpbnV4KSIKICAgICAgc3RFdnQ6d2hlbj0iMjAyMy0wMy0yOVQxMDoxOTo1MCswODowMCIvPgogICAgPC9yZGY6U2VxPgogICA8L3htcE1NOkhpc3Rvcnk+CiAgPC9yZGY6RGVzY3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9InciPz40MZNrAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5wMdAhMyiPqwdAAAHmtJREFUeNrt3XuU13WB//HXMFxmBIaLKFeNUBxhLQJ01FAhyDontgQz184qeSsVVzmeTdqV9eimlouKuyxmZ8nc2I2MRbDDaqEyRxYVJWEIRcEiUhE0hqQRGG4z8/uD+P6cYFAhUIfH4x/lc5sP788X5snnNgkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANCsFRkCgI+W0/6h17DUZ+h+b6BF5j9z+5onjCTQlJaGAOAjpj5Dk6Kb93/9hpuTCERAIAJ752wUAAIRaMzZKAD2+Lc/AAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAACEQAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAAfIQUGQI49EpLS2tra2tLPgz70mtIWXoN6bDf66956o9Z81SNg+qY7e+fha21tbWljioIRCBpWLly5YdiRx6qmpbZS6bt9/qjB43JqIFjHFHHbL+Ul5f7XgQfQi4xAwAgEAEAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAACEQAABCIAAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAACEQAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAACEQAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAQCACACAQAQAQiAAACEQAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAIRAACBCACAQAQAQCACACAQAQAQiAAACEQAAAQiAAAC0RAAACAQAQAQiAAACEQAAAQiAAACEQAAgQgAgEAEAEAgAgAgEAEAEIgAAAhEAAAEIgAAAhEAAIEIAIBABABAIAIAIBABABCIAAAIRAAAEIgAADTW0hAAzcXy5cuzefPmnHDCCenYsaMBAdhPziACzcaNN96Yiy66KEuWLDEYAAIRAACBCACAQAQA4ODzkApwyNTX1+fRRx/Nz3/+86xatSqtW7dOnz598uUvfzmnn376HsvX1dVl7ty5+cUvfpHXXnstxcXF6d27d77whS9k+PDh7+lrPvHEE5k7d24GDhyY888/f4/5lZWVeeyxxzJ48OCcd955SZItW7bklltuSffu3XPttddm3rx5mTlzZl599dV07Ngxn//853PhhRemRYsWef311/PDH/4wy5YtS11dXT75yU/mG9/4Rnr06FH4Gps3b86tt96abt26Zdy4cZk/f34efPDBvPLKK2nbtm0GDhyYMWPGpGvXrj4kgEAEDh81NTW5+uqrs2jRoiRJWVlZduzYkeXLl2fOnDm57LLLMn78+MLyGzduzJVXXpmqqqokSdu2bVNfX5/nn38+c+bMyYgRI3LXXXeltLR0n1/35ZdfzqxZs1JXV7fXQFyxYkVmzZqVoqKiQiBu27Yts2bNSr9+/bJx48b8+Mc/brTOc889l1WrVmX06NH5+te/npqamsK85cuX59FHH81DDz2Uo48+OkmydevWzJo1K+Xl5dm6dWt++MMfNtre4sWLM2PGjEyfPj19+/b1YQE+cC4xA4fEDTfckEWLFuVjH/tYpk+fnl/+8pdZunRp7rjjjpSUlOS+++7LvHnzkiQNDQ0ZO3Zsqqqqctxxx2X69OlZsmRJqqqq8h//8R856qijMm/evNx4440HdZ9ffvnlPPDAAxk3blyeffbZvPDCC5kwYUKSZMaMGbniiity8skn59FHH83KlSszffr0dOnSJRs2bNgjKpNk1apV+c///M9cffXVefrpp7Ny5cr86Ec/So8ePVJTU5O7777bBwUQiMDh4aWXXspjjz2WVq1aZerUqRk8eHBh3pe+9KVcccUVSVKIqsrKyixevDjt27fP/fffX1i+qKgoQ4cOzdSpU1NcXJw5c+Zk+fLlB22/6+rqctFFF2Xs2LHp2LFjWrVqlTFjxuS4445LfX19OnTokMmTJ+djH/tYkmTw4MH52te+liRZtmzZHtvbuXNnLrnkklx77bU58sgjkySnnXZa/vEf/zFJsnDhQh8W4EPBJWbgoNt9ZvDMM88sxNQ7XXDBBTnhhBMKl1cff/zxJMlf//Vf7/W+vH79+mXo0KGprKzMo48+mr/6q786aPv+pS99aY9pH//4x7Nq1aqMGDEirVq1ajTvmGOOSZK8/fbb73l7J510UpJd9z7u2LFjj20CHGrOIAIH3a9//eskSf/+/fc6v3PnzvnsZz9biMeVK1cmSQYMGNDkNgcOHJhk12Xgg2l38L1TcXFxkhTuMXyn1q1bJ9l1mXxvevXqtce0tm3bFv5/586dPjCAQASav90PcZSVlb2v5ff14/I6dOiQJNm0adNB3fc2bdo0OW93KP6ltgcgEIHDRklJSZJdTwf/pZavra1N8v/P2L2bps7o1dfXO0AAAhE41Ha/E/DVV1/d6/xt27ZlwoQJuffee1NXV1e4DLtq1aomt/mb3/wmyd4v2Tb6S67Frr/mduzYsdf5GzZscIAABCJwqJ166qlJdr20evv27XvMX7hwYWbOnJmZM2emuLi48NLs//3f/01dXd0ey2/evLnwIEtFRcU+v/bu+/vWrl27x7z6+vo8++yzDhCAQAQOtREjRuTYY4/N+vXrc8sttzSKvg0bNmTixIlJdj3NnCTnnntuOnfunN/+9rf59re/3ejBjdra2lx//fV56623cswxx+Tss8/e59fu169fkl2vnXnyyScL03fu3JnvfOc7+zxLCXC48pob4KArLi7O3XffnUsuuSQzZszI008/nYqKimzbti0LFixITU1NKioqcvHFFydJ2rdvn0mTJuWqq67KAw88kP/7v//Lqaeemp07d2bhwoWprq5Op06dMnny5He9B3HAgAEZPHhwFi9enMsvvzyDBw9Op06dsnTp0lRXV+fcc8/NrFmzHCQAgQgcaieddFJmzpyZu+66K0888UQhyjp06JArr7wyY8eObfT+v9NPPz0zZ87M3XffnQULFmT27NlJkiOOOCLnnXderr322j3ekXj00Udn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PYg0azfeeGM2bdqUc845J2VlZWnRokVGjhyZ+fPnF5b57ne/m29+85v53Oc+l3bt2mXLli05//zzc+mllxpAAAQiNDelpaWZPHly3njjjaxbty79+vVLSUlJo2U6deqU++67L2vXrs2aNWvy8Y9/PEcddZTBA0AgQnPWrVu3dOvWbZ/L9OjRIz169DBYABz23IMIAIBABABAIAIAIBABABCIAAAIRAAABCIAAAeR9yAC0KzU1tbmhRdeyNtvv51OnTqlf//+adOmjYGB98EZRACajUWLFuWss87KhRdemKuuuioXXHBB1q5de8j347nnnssbb7zRaNoNN9yQ8vLyfO9733Og+NBzBhGAZuNb3/pWampq0rVr1wwZMiS1tbU59thjD+k+3HTTTXnggQfys5/97F1/ghMIRAA4iNavX5+1a9emqKgoM2bM+MDi7PHHH9/r9PPOOy+nnHJK+vXr52AhEAHgUNiyZUuSpLS09EN55m7QoEEZNGiQA4VABICDraGhIb/85S8L9/w1NDRk0aJFSZI+ffqkS5cuhWXfeuutVFZWZvXq1amvr0+vXr3ymc98Jt27d29y+3V1dXnqqafy/PPPZ8OGDenatWtOOeWUPWJv3bp1ee2117J9+/YkyQsvvJCampqccMIJ6dixY1avXp3169enV69e6dGjR5Jk48aNefnll3P00Uend+/e+d3vfpfHH388b775Zrp06ZIhQ4bkpJNOanLfVq9encrKyqxZsybdunXLsGHDUl5enhUrVqSmpib9+/dPu3btfEgQiAAcXnbu3JmLLrqo8Ova2trCrydOnJhzzjknSXL//ffnX//1X7N169ZG63/nO9/J17/+9VxzzTVp0aLxs5vPP/98/v7v/z6vvPLKHl+3oqIikyZNylFHHZUkeeSRRzJx4sTC/AkTJiRJ7r333gwfPjxTp07Ngw8+mHHjxmXs2LFJkqqqqlx55ZU5//zz071790yZMiV1dXWFbUyaNClf/vKXc+uttzbat4aGhvzLv/xLfvSjH6W+vr4w/e67786ll16aF198MQsXLsxPf/rTfOpTn/IhQSACcHgpLi7O7bffnurq6tx5550pKSnJzTffnCQZOHBgkmTq1Km58847U1xcnMsvvzwjRoxIq1atMn/+/PzgBz/I9773vWzevDk33HBDYbu//vWvc/HFF2fTpk05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`;
   
@@ -41,11 +41,12 @@ module.exports = function (input_json) {
   };
 
   class RebarDetails {
-    constructor(fy, fc, lambda, generateDetailedReport) {
+    constructor(fy, fc, lambda, spacingCoverCondition, generateDetailedReport) {
       
       this.fy = fy;
       this.fc = fc;
       this.lambda = lambda;
+      this.condition = spacingCoverCondition
 
       if (typeof generateDetailedReport == 'undefined') generateDetailedReport = false; 
       this.generateDetailedReport = generateDetailedReport;
@@ -154,16 +155,16 @@ module.exports = function (input_json) {
       //   this.getMinStandardHookForStirrups(rebarNo, '180');
       // }
       
-      let {ld, ld_othercase} = this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
+      let ld = this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, moreThan12InPlacedBelowHorizontalReinforcement);
       let ldh = this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor, locationModFactor);
       let ldh_seismic = this.calculateSeismicDevelopmentLengthOfHookInTension(rebarNo);
 
       let ldc = this.calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor);
 
-      let lst_obj = this.calculateLapSpliceInTension(rebarNo, ld, ld_othercase);
+      let lst_obj = this.calculateLapSpliceInTension(rebarNo, ld);
 
       let lsc;
-      if (lst_obj) lsc = this.calculateLapSpliceInCompression(rebarNo, lst_obj.code_conforming.A);
+      if (lst_obj) lsc = this.calculateLapSpliceInCompression(rebarNo, lst_obj.A);
 
       if (this.generateCalcReport) {
         REPORT.block.finish();
@@ -181,7 +182,7 @@ module.exports = function (input_json) {
       // ld hook
       result_temp.ldh = ldh;
       result_temp.ldc = ldc;
-      result_temp.lst = lst_obj.code_conforming;
+      result_temp.lst = lst_obj;
       result_temp.lsc = lsc;
       result_temp.ldh_seismic = ldh_seismic;
 
@@ -280,7 +281,12 @@ module.exports = function (input_json) {
         }
       }
       
-      return {ld, ld_othercase};
+      if (this.condition == 'other_cases') {
+        return ld_othercase;
+      } else {
+        return ld;
+      }
+
     }
     calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor, locationModFactor) {
       
@@ -371,42 +377,29 @@ module.exports = function (input_json) {
      
       return ldc;
     }
-    calculateLapSpliceInTension (rebarNo, ld, ldOtherCases) {
+    calculateLapSpliceInTension (rebarNo, ld) {
       let rebar_no_ = parseInt(rebarNo);
       if (rebar_no_ > 11) return null;
       // Table 25.5.2.1
       let lst_A = Math.ceil(Math.max(12,1*ld));
       let lst_B = Math.ceil(Math.max(12,1.3*ld));
-
-      let lst_A_othercases = Math.ceil(Math.max(12,1*ldOtherCases));
-      let lst_B_othercases = Math.ceil(Math.max(12,1.3*ldOtherCases));
       
       if (this.generateCalcReport) {
         if (this.generateDetailedReport) {
           // GENERATE CALCS in REPORT
           REPORT.block.addCalculation(`<h3>Lap Splice lengths of deformed bars in tension [mathin] l_{st} [mathin]:</h3>`);
-          REPORT.block.addReference(`Table 25.5.2.1`); 
-          REPORT.block.addCalculation(`Clear spacing of bars or wires being developed or lap spliced not less than [mathin] d_{b} [mathin], clear cover at least [mathin] l_{d} [mathin], and stirrups or ties throughout [mathin] l_{d} [mathin] not less than the Code minimum<br>or<br> Clear spacing of bars or wires being developed or lap spliced at least [mathin] 2d_{b} [mathin] and clear cover at least [mathin] d_{b} [mathin]`);
-  
+          REPORT.block.addReference(`Table 25.5.2.1`);
           ReportHelpers.lineResult("Development length in tension", "l_{d}", prettyPrint(ld,2) + ' in.');
           REPORT.block.addCalculation(`Class A: [math] l_{st,A} = 1.0l_{d} > 12 = ${prettyPrint(lst_A,2)} in. [math]`);
           REPORT.block.addCalculation(`Class B: [math] l_{st,A} = 1.3l_{d} > 12 = ${prettyPrint(lst_B,2)} in. [math]`);
-          REPORT.block.addCalculation(`Other Cases:`);
-          ReportHelpers.lineResult("Development length in tension", "l_{d}", prettyPrint(ldOtherCases,2) + ' in.');
-          REPORT.block.addCalculation(`Class A: [math] l_{st,A} = 1.0l_{d} > 12 = ${prettyPrint(lst_A_othercases,2)} in. [math]`);
-          REPORT.block.addCalculation(`Class B: [math] l_{st,A} = 1.3l_{d} > 12 = ${prettyPrint(lst_B_othercases,2)} in. [math]`);
+          
         } else {
           ReportHelpers.lineResult("Development length in tension (code conforming - Class A)", "l_{d,A}", prettyPrint(lst_A,2) + ' in.');
           ReportHelpers.lineResult("Development length in tension (code conforming - Class B)", "l_{d,B}", prettyPrint(lst_B,2) + ' in.');
-          ReportHelpers.lineResult("Development length in tension (other cases - Class A)", "l_{d,A}", prettyPrint(lst_A_othercases,2) + ' in.');
-          ReportHelpers.lineResult("Development length in tension (other cases - Class B)", "l_{d,B}", prettyPrint(lst_B_othercases,2) + ' in.');
         }
       }
       
-      return {
-        'code_conforming': {"A": lst_A, "B": lst_B},
-        'other': {"A": lst_A_othercases, "B": lst_B_othercases},
-      };
+      return {"A": lst_A, "B": lst_B};
 
     }
     calculateLapSpliceInCompression(rebarNo, lst) {
@@ -517,21 +510,21 @@ module.exports = function (input_json) {
         // bottom
         let ld_bottom = this.calculateDevelopmentLengthInTension (rebarNo, epoxyModFactor, false);
         // {ld, ld_othercase}
-        this_data.ld_top = ld_top.ld;
-        this_data.ld_bottom = ld_bottom.ld;
+        this_data.ld_top = ld_top;
+        this_data.ld_bottom = ld_bottom;
 
         // ld hook
         this_data.ldh = this.calculateDevelopmentLengthOfHooksInTension (rebarNo, epoxyModFactor, confiningReinfModFactor, locationModFactor);
         // ld compression
         this_data.ldc = this.calculateDevelopmentLengthInCompression (rebarNo, confiningReinfModFactor);
   
-        let lst_obj = this.calculateLapSpliceInTension(rebarNo, ld_bottom.ld, ld_bottom.ld_othercase);
+        let lst_obj = this.calculateLapSpliceInTension(rebarNo, ld_bottom);
 
-        this_data.lst = lst_obj.code_conforming;
+        this_data.lst = lst_obj;
         
         let lsc;
         if (lst_obj) {
-          lsc = this.calculateLapSpliceInCompression(rebarNo, lst_obj.code_conforming.A);
+          lsc = this.calculateLapSpliceInCompression(rebarNo, lst_obj.A);
           this_data.lsc = lsc;
         }
 
@@ -572,7 +565,7 @@ module.exports = function (input_json) {
   REPORT.block.finish();
 
   // Create Rebar Detail using from fy, fc, lambda
-  var rebar_data = new RebarDetails(fy, fc, lambda);
+  var rebar_data = new RebarDetails(fy, fc, lambda, condition);
   
   // CALCULATE ALL LENGTH FOR REBAR DIAMETER
   // Generate Summary table 
@@ -814,13 +807,13 @@ module.exports = function (input_json) {
       },
       "ld_top": {
         "label":"Tension Development Length (top bars) l<sub>d,top</sub>",
-        "value": db_detail.ld_top.ld,
+        "value": db_detail.ld_top,
         "units": "in",
         "info": "With more than 12 in. of fresh concrete placed below the horizontal reinforcement",
       },
       "ld_bottom": {
         "label":"Tension Development Length (bottom bars) l<sub>d,bottom</sub>",
-        "value": db_detail.ld_bottom.ld,
+        "value": db_detail.ld_bottom,
         "units": "in",
       },
       "ldc": {

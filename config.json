@@ -34,17 +34,53 @@
 				{
 					"value": "60000",
 					"name": "Grade 60"
+				},
+				{
+					"value": "80000",
+					"name": "Grade 80"
+				},
+				{
+					"value": "100000",
+					"name": "Grade 100"
 				}
 			]
 		},
 		"fc": {
-			"type": "number",
+			"info": "Concrete strength, f'<sub>c</sub>",
+			"type": "dropdown",
 			"label": "f'<sub>c</sub>",
-			"default": 3000,
-			"min": 2500,
-			"max": 10000,
+			"default": "3000",
 			"units": "psi",
-			"info": "Concrete strength, f'<sub>c</sub>"
+			"options": [
+				{
+					"value": "3000",
+					"name": "3000"
+				},
+				{
+					"value": "4000",
+					"name": "4000"
+				},
+				{
+					"value": "5000",
+					"name": "5000"
+				},
+				{
+					"value": "6000",
+					"name": "6000"
+				},
+				{
+					"value": "8000",
+					"name": "8000"
+				},
+				{
+					"value": "10000",
+					"name": "10000"
+				}
+			]
+		},
+		"sub_heading_4": {
+			"type": "heading",
+			"label": "For Development Length in Tension"
 		},
 		"lambda": {
 			"type": "dropdown",
@@ -69,9 +105,29 @@
 			"max": 1.5,
 			"info": "For development length of straight and hooked deformed bars in tension"
 		},
+		"condition": {
+			"type": "dropdown",
+			"label": "Spacing/cover condition of rebar",
+			"default": "case_a",
+			"options": [
+				{
+					"value": "case_a",
+					"name": "Clear spacing of bars or wires being developed or lap spliced not less than db, clear cover at least db, and stirrups or ties throughout Ɛd not less than the Code minimum"
+				},
+				{
+					"value": "case_b",
+					"name": "Clear spacing of bars or wires being developed or lap spliced at least 2db and clear cover at least db"
+				},
+				{
+					"value": "other_cases",
+					"name": "Other cases"
+				}
+			]
+		},
+
 		"sub_heading_2": {
 			"type": "heading",
-			"label": "For Hooked Deformed Bars"
+			"label": "For Development Length Hooked Deformed Bars in Tension"
 		},
 		"psi_r": {
 			"label": "Modification Factor for Confining Reinforcement, Ψ<sub>r</sub>",
