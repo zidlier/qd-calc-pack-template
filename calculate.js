@@ -233,7 +233,8 @@ module.exports = function (input_json) {
       if (!moreThan12InPlacedBelowHorizontalReinforcement) moreThan12InPlacedBelowHorizontalReinforcement = false;
       let rebar_no_ = parseInt(rebarNo);
       // From table 25.4.2.5
-      let psi_g = (this.fy <= 60000) ? 1.0 : (this.fy >= 80000) ? 1.15 : 1.3;
+      let psi_g = (this.fy <= 60000) ? 1.0 : (this.fy == 80000) ? 1.15 : 1.3;
+      psi_g = (this.fy == 100000) ? 1.3 : psi_g;
       let psi_t = (moreThan12InPlacedBelowHorizontalReinforcement) ? 1.3 : 1.0;
       let psi_s = (rebar_no_ >= 7) ? 1.0 : 0.8;
       let psi_e = epoxyModFactor;

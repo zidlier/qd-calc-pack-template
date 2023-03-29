@@ -166,7 +166,8 @@ class RebarDetails {
       if (!moreThan12InPlacedBelowHorizontalReinforcement) moreThan12InPlacedBelowHorizontalReinforcement = false;
       let rebar_no_ = parseInt(rebarNo);
       // From table 25.4.2.5
-      let psi_g = (this.fy <= 60000) ? 1.0 : (this.fy >= 80000) ? 1.15 : 1.3;
+      let psi_g = (this.fy <= 60000) ? 1.0 : (this.fy == 80000) ? 1.15 : 1.3;
+      psi_g = (this.fy == 100000) ? 1.3 : psi_g;
       let psi_t = (moreThan12InPlacedBelowHorizontalReinforcement) ? 1.3 : 1.0;
       let psi_s = (rebar_no_ >= 7) ? 1.0 : 0.8;
       let psi_e = epoxyModFactor;
@@ -661,7 +662,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 32,
       "ld_top_darwin": 42,
-      "ldc_darwin": "",
+      "ldc_darwin": 13,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -672,7 +673,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 48,
       "ld_top_darwin": 62,
-      "ldc_darwin": "",
+      "ldc_darwin": 19,
       "ld_bottom_aci": 47,
       "ldh_aci": 14.9
     },
@@ -683,7 +684,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 73,
       "ld_top_darwin": 95,
-      "ldc_darwin": "",
+      "ldc_darwin": 26,
       "ld_bottom_aci": 73,
       "ldh_aci": 19.9
     },
@@ -705,7 +706,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 48,
       "ld_top_darwin": 62,
-      "ldc_darwin": "",
+      "ldc_darwin": 13,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -716,7 +717,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 72,
       "ld_top_darwin": 93,
-      "ldc_darwin": "",
+      "ldc_darwin": 19,
       "ld_bottom_aci": 71,
       "ldh_aci": 14.9
     },
@@ -727,7 +728,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 110,
       "ld_top_darwin": 142,
-      "ldc_darwin": "",
+      "ldc_darwin": 26,
       "ld_bottom_aci": 109,
       "ldh_aci": 19.9
     },
@@ -749,7 +750,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 29,
       "ld_top_darwin": 37,
-      "ldc_darwin": "",
+      "ldc_darwin": 12,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -760,7 +761,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 43,
       "ld_top_darwin": 56,
-      "ldc_darwin": "",
+      "ldc_darwin": 18,
       "ld_bottom_aci": 42,
       "ldh_aci": 14.4
     },
@@ -771,7 +772,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 66,
       "ld_top_darwin": 85,
-      "ldc_darwin": "",
+      "ldc_darwin": 24,
       "ld_bottom_aci": 65,
       "ldh_aci": 17.8
     },
@@ -793,7 +794,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 43,
       "ld_top_darwin": 56,
-      "ldc_darwin": "",
+      "ldc_darwin": 12,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -804,7 +805,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 64,
       "ld_top_darwin": 83,
-      "ldc_darwin": "",
+      "ldc_darwin": 18,
       "ld_bottom_aci": 64,
       "ldh_aci": 14.4
     },
@@ -815,7 +816,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 98,
       "ld_top_darwin": 127,
-      "ldc_darwin": "",
+      "ldc_darwin": 24,
       "ld_bottom_aci": 98,
       "ldh_aci": 17.8
     },
@@ -837,7 +838,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 26,
       "ld_top_darwin": 34,
-      "ldc_darwin": "",
+      "ldc_darwin": 12,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -848,7 +849,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 39,
       "ld_top_darwin": 51,
-      "ldc_darwin": "",
+      "ldc_darwin": 18,
       "ld_bottom_aci": 39,
       "ldh_aci": 14.1
     },
@@ -859,7 +860,7 @@ let verified_data = [
       "condition": "case_a",
       "ld_bottom_darwin": 60,
       "ld_top_darwin": 78,
-      "ldc_darwin": "",
+      "ldc_darwin": 24,
       "ld_bottom_aci": 59,
       "ldh_aci": 18.8
     },
@@ -881,7 +882,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 39,
       "ld_top_darwin": 51,
-      "ldc_darwin": "",
+      "ldc_darwin": 12,
       "ld_bottom_aci": "",
       "ldh_aci": ""
     },
@@ -892,7 +893,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 59,
       "ld_top_darwin": 76,
-      "ldc_darwin": "",
+      "ldc_darwin": 18,
       "ld_bottom_aci": 58,
       "ldh_aci": 14.1
     },
@@ -903,7 +904,7 @@ let verified_data = [
       "condition": "other_cases",
       "ld_bottom_darwin": 90,
       "ld_top_darwin": 116,
-      "ldc_darwin": "",
+      "ldc_darwin": 24,
       "ld_bottom_aci": 89,
       "ldh_aci": 18.8
     },
