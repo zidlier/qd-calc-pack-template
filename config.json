@@ -23,7 +23,7 @@
 		},
 		"fy": {
 			"type": "dropdown",
-			"label": "f'<sub>y</sub>",
+			"label": "f<sub>y</sub>",
 			"default": "40000",
 			"units": "psi",
 			"options": [
@@ -88,6 +88,53 @@
 			"min": 1.0,
 			"max": 1.25,
 			"info": "For development length of hooked deformed bars in tension"
+		},
+		"sub_heading_3": {
+			"type": "heading",
+			"label": "Calculate for Development and Splice Length for a Specific Rebar"
+		},
+		"db": {
+			"type": "dropdown",
+			"label": "Selected Rebar d<sub>b</sub>",
+			"default": "#5",
+			"options": [
+				{
+					"value": "#3",
+					"name": "#3 - 0.375 in."
+				},
+				{
+					"value": "#4",
+					"name": "#4 - 0.50 in."
+				},
+				{
+					"value": "#5",
+					"name": "#5 - 0.625 in."
+				},
+				{
+					"value": "#6",
+					"name": "#6 - 0.75 in."
+				},
+				{
+					"value": "#7",
+					"name": "#7 - 0.875 in."
+				},
+				{
+					"value": "#8",
+					"name": "#8 - 1.0 in."
+				},
+				{
+					"value": "#9",
+					"name": "#9 - 1.128 in."
+				},
+				{
+					"value": "#10",
+					"name": "#10 - 1.27 in."
+				},
+				{
+					"value": "#11",
+					"name": "#11 - 1.41 in."
+				}
+			]
 		}
 	}
 }
