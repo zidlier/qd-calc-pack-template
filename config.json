@@ -2,7 +2,7 @@
 	"meta": {
 		"name": "ACI 318-19 Rebar Details Generator",
 		"short_description": "ACI 318-19 splice and development length generator",
-		"long_description": "Generate splice and development length table for a specific concrete and rebar strength",
+		"long_description": "Generate splice and development length table of deformed rebar for a specific concrete and rebar strength",
 		"tags": "rebar",
 		"access": "public",
 		"s3d_integrated": false,
