@@ -1,6 +1,9 @@
 module.exports = function (input_json) {
 
-    let {fy, fc, fyt, b, h, db ,ds, C_c} = input_json;
+    let {beam_mark, fy, fc, fyt, b, h, db ,ds, C_c} = input_json;
+
+    // Loads
+    let {Mu_topA, Mu_botA, Mu_topB, Mu_botB, Mu_top_mid, Mu_bot_mid} = input_json;
 
     var prettyPrint = function (val, decimal) {
       if (typeof val == "undefined" || val == null) return "-";
@@ -10,6 +13,39 @@ module.exports = function (input_json) {
       if (isNaN(res)) return val;
       return res;
     };
+
+    function interpolate([[x1,y1], x2, [x3,y3]]) {
+        return (((x2 - x1) * (y3 - y1)) / (x3 - x1)) + y1;    
+    }
+
+    function topBottomSearch(number, object) {
+
+        var list = [];
+        for (var n in object) {
+            // dump the key values into a list
+            list.push(parseFloat(n))
+        }
+        // Sort the list in ascending order
+        list.sort(function (a, b) {
+            return a - b
+        });
+        
+        for (var i = 0; i < list.length; i++) {
+            // loop until number is found
+            var current_num = list[i];
+            if (current_num < number) {
+                before_num = current_num;
+            } else if (current_num > number) {
+                after_num = current_num;
+                break
+            }
+        }
+        
+        return {
+            "after": after_num,
+            "before": before_num
+        };
+    }
 
     function calculateAs(Mu, fc, fy, b, d ) {
         let a = 20;
@@ -53,8 +89,14 @@ module.exports = function (input_json) {
             };
 
             this.db = rebars[rebarNo].db
-            this.Ab = rebars[rebarNo].Ab
+            this.As = rebars[rebarNo].As
+        }
+    }
 
+    class Concrete {
+        constructor(fc) {
+            this.fc = fc
+            this.beta1 = (fc >= 2500 && fc <= 4000) ? 0.85 : (fc >= 8000) ? 0.65 : interpolate([[4000,0.85],fc, [8000,0.65]])
         }
     }
 
@@ -62,28 +104,86 @@ module.exports = function (input_json) {
         constructor (beamWidth, beamDepth, concreteStrengthfc, mainReinfYieldfy,  transverseReinfYieldfyt, mainReinfDiaRebarNo, transvereReinfDiaRebarNo, concreteCoverCc) {
             this.b =  beamWidth;
             this.h =  beamDepth;
-            this.fc =  concreteStrengthfc;
+
+            let concrete = new Concrete(concreteStrengthfc)
+            this.fc =  concrete.fc;
+            this.beta1 = concrete.beta1;
+
             this.fy =  mainReinfYieldfy;
             this.fyt =  transverseReinfYieldfyt;
-
+ 
             let main_reinforcement = new Rebar(mainReinfDiaRebarNo)
             let transverse_reinforcement = new Rebar(transvereReinfDiaRebarNo)
             this.db =  main_reinforcement.db;
             this.ds =  transverse_reinforcement.db;
+
+            this.Ab = main_reinforcement.As
+
             this.cc = concreteCoverCc;
             this.d_prime = this.cc + this.ds + this.db*0.5;
             this.d = this.h - this.d_prime;
+
+            this.rho_min = (this.fy == 40000) ? 0.005 : 0.0033
+
+            this.ety = this.fy/29000;
+            this.ety_min = 0.003+this.ety;
+            this.rho_max = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety_min));
+            this.rho_balanced = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety));
+            this.rho_min = Math.max((3*Math.pow(this.fc,0.5))/this.fy, 200/this.fy);
+
+            this.Av = 2*transverse_reinforcement.As
+            
         }
         calculateFlexureReinforcement(designMomentMu) {
-            // designMomentMu in lb-in
+            // designMomentMu in kip-ft 
+            designMomentMu = designMomentMu*12*1000// convert to lb-in
             let As = calculateAs(designMomentMu, this.fc, this.fy, this.b, this.d );
-            return As;
+            return Math.ceil(As/this.Ab)
+
+        }
+        calculateShearCapacityOfConcreteVc() {
+            let Vc = 2*this.b*this.d*Math.pow(this.fc,0.5);
+            return Vc; //in lb
+        }
+        calculateShearReinforcementSpacing(Vu) {
+            // Vu in kips
+            Vu = Vu*1000
+            let this_Vc = this.calculateShearCapacityOfConcreteVc()
+            let phi_shear = 0.75;
+
+            let s
+            if (Vu < phi_shear*Vc*0.5) {
+                s = 0;
+            } else if (Vu >= phi_shear*Vc*0.5 && Vu < phi_shear*Vc) {
+                s = Math.min((this.Av*this.fyt)/(phi_shear*Math.pow(fc,0.5)*this.b), (this.Av*this.fyt)/(50*this.b))
+            } else {
+                let Vs = (Vu/phi_shear) - this_Vc
+                s = (this.Av*this.fyt*this.d)/Vs;
+
+                let s_max
+                if (Vs <= 4*this.b*this.d*Math.pow(this.fc,0.5)) {
+                    s_max = Math.min(this.d/2, 24)
+                } else {
+                    s_max = Math.min(this.d/4, 12)
+                }
+
+                s = Math.min(s, s_max)
+                
+            }
+        
+            return s
+        }
+        calculateShearCapacity(spacing) {
+            let phi_shear = 0.75;
+            let this_Vc = this.calculateShearCapacityOfConcreteVc()
+            let Vs = (this.Av*this.fyt*this.d)/spacing;
+            let phiVn = phi_shear*(this_Vc+Vs)
+            return phiVn
         }
     }
 
 
 
-    var beam1 = new Beam(b,h,fc,fy,fyt,db,ds,C_c)
     
     // Reusable function for generating table
     function generateResultsTable (header, data, options) {
@@ -92,287 +192,69 @@ module.exports = function (input_json) {
       ReportHelpers.quickTable(table_data, options);
     }
   
-    function generateAllResults (summaryTable, showImages, fy, fc) {
-      let straight_ld_data = [];
-      let hook_90deg_bend_data = [];
-      let hook_180deg_bend_data = [];
-      let splice_data = [];
-      let stirrup_geometry_data = [];
-  
-      summaryTable.map(obj => {
-        let {
-          rebar_name,
-          rebar_diameter,
-          rebar_area,
-          ld_top,
-          ld_bottom,
-          ldh,
-          bend_geometry_tension,
-          ldc, 
-          lsc, 
-          lst,
-          stirrup_geometry
-        } = obj;
-  
-        splice_data.push([
-          rebar_name,
-          rebar_diameter,
-          prettyPrint(lsc,2),
-          prettyPrint(lst.A,2),
-          prettyPrint(lst.B,2)
-        ]);
-  
-        hook_90deg_bend_data.push([
-          rebar_name,
-          rebar_diameter,
-          prettyPrint(ldh,2),
-          prettyPrint(bend_geometry_tension['90'].l_ext,2),
-          prettyPrint(bend_geometry_tension['90'].inside_diameter,2),
-        ]);
-  
-        hook_180deg_bend_data.push([
-          rebar_name,
-          rebar_diameter,
-          prettyPrint(ldh,2),
-          prettyPrint(bend_geometry_tension['180'].l_ext,2),
-          prettyPrint(bend_geometry_tension['180'].inside_diameter,2),
-        ]);
-  
-  
-        straight_ld_data.push([
-          rebar_name,
-          rebar_diameter,
-          prettyPrint(ld_top,2),
-          prettyPrint(ld_bottom,2),
-          prettyPrint(ldc,2)
-        ]);
-  
-        if (stirrup_geometry) {
-          stirrup_geometry_data.push([
-            rebar_name,
-            rebar_diameter,
-            prettyPrint(stirrup_geometry['90'].l_ext,2),
-            prettyPrint(stirrup_geometry['90'].inside_diameter,2),
-            prettyPrint(stirrup_geometry['135'].l_ext,2),
-            prettyPrint(stirrup_geometry['135'].inside_diameter,2),
-            prettyPrint(stirrup_geometry['180'].l_ext,2),
-            prettyPrint(stirrup_geometry['180'].inside_diameter,2),
-          ]);
-        }
-  
-      });
-  
-      // Generate development length summary table for straight bars
-      let straight_ld_data_header = [
-        [
-          "Rebar", 
-          "Bar Dia.<br>in.", 
-          "Top Bars<br>Tension<br>l<sub>d</sub> in.",
-          "Bottom Bars<br>Tension<br>l<sub>d</sub> in.",
-          "Compression<br>l<sub>dc</sub> in.", 
-        ]
-      ];
-      
-      generateResultsTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-  
-      if (showImages) {
-        ReportHelpers.image({
-          new_block: true,
-          src: ld_image_beam,
-          width: "80%"
-        });
     
-        // ldc
-        ReportHelpers.image({
-          new_block: true,
-          src: ldc_image,
-          width: "60%"
-        });
-      }
-     
-      // Generate development length summary table for hooked bars
-      let hook_90deg_bend_data_header = [
-        [
-          "Rebar", 
-          "Bar Dia.<br>in.",
-          "Hook<br>l<sub>dh</sub> in.",
-          "90&deg Hook<br>l<sub>ext</sub> in.", 
-          "90&deg<br>Inside Dia.<br>D in.", 
-        ]
-      ];
-  
-      let hook_180deg_bend_data_header = [
-        [
-          "Rebar", 
-          "Bar Dia.<br>in.",
-          "Hook<br>l<sub>dh</sub> in.",
-          "180&deg Hook<br>l<sub>ext</sub> in.", 
-          "180&deg<br>Inside Dia.<br>D in."
-        ]
-      ];
-  
-      generateResultsTable (hook_90deg_bend_data_header, hook_90deg_bend_data, {heading: `90&deg Hook Development Length and Geometry for deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
-      
-      if (showImages) {
-        // add hook figure
-        ReportHelpers.image({
-          new_block: true,
-          src: hook_90deg_img,
-          width: "60%"
-        });
-      }
-      
-      generateResultsTable (hook_180deg_bend_data_header, hook_180deg_bend_data, {heading: `180&deg Hook Development Length and Geometry deformed bars in tension<br><br> fy = ${fy} psi and f'c = ${fc} psi`,});
-      
-      if (showImages) {
-        // add hook figure
-        ReportHelpers.image({
-          new_block: true,
-          src: hook_180deg_img,
-          width: "60%"
-        });
-      }
-      
-      // Generate standard hook geometry for stirrups
-      let stirrup_geometry_data_header = [
-        [
-          "Rebar", 
-          "Bar Dia.<br>in.",
-          "90&deg Hook<br>l<sub>ext</sub> in.", 
-          "90&deg<br>Inside Dia.<br>D in.",
-          "135&deg Hook<br>l<sub>ext</sub> in.", 
-          "135&deg<br>Inside Dia.<br>D in.",
-          "180&deg Hook<br>l<sub>ext</sub> in.", 
-          "180&deg<br>Inside Dia.<br>D in.",
-        ]
-      ]; 
-  
-      generateResultsTable (stirrup_geometry_data_header, stirrup_geometry_data, {heading: `Standard hook geometry for stirrups, ties, and hoops<br><br>fy = ${fy} psi and f'c = ${fc} psi`,});
-  
-      if (showImages) {
-        ReportHelpers.image({
-          new_block: true,
-          src: stirrup_bend_90,
-          width: "60%"
-        });
-    
-        // add hook figure
-        ReportHelpers.image({
-          new_block: true,
-          src: stirrup_bend_135,
-          width: "60%"
-        });
-    
-        // add hook figure
-        ReportHelpers.image({
-          new_block: true,
-          src: stirrup_bend_180,
-          width: "60%"
-        });
-      }
-      
-      // Generate splice length table summary for each rebar
-      let splice_data_header = [
-        [
-          "Rebar", 
-          "Bar Dia.<br>in.",
-          "Splice length<br>(compression)<br>l<sub>sc</sub> in.", 
-          "Class A <br>splice length<br>(tension)<br>l<sub>st</sub> in.", 
-          "Class B <br>splice length<br>(tension)<br>l<sub>st</sub> in.",
-        ]
-      ];
-  
-      generateResultsTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
-      
-      if (showImages) {
-        // Compression splice
-        ReportHelpers.image({
-          new_block: true,
-          src: lst_image,
-          width: "100%"
-        });
-  
-        // Compression splice
-        ReportHelpers.image({
-          new_block: true,
-          src: lsc_image,
-          width: "60%"
-        });
-      }
-  
-    }
-  
     // TITLE
-    REPORT.block.new("Development and Splice Length of Deformed Bars<br><br>(ACI 318-19)", 2);
+    REPORT.block.new("Design of Singly Reinforced Concrete Beam<br><br>(ACI 318-19)", 2);
     REPORT.block.finish();
   
-    // Create Rebar Detail using from fy, fc, lambda
-    var rebar_data = new RebarDetails(fy, fc, lambda, condition);
+    var beam1 = new Beam(b,h,fc,fy,fyt,db,ds,C_c)
+    logger(beam1.Ab)
+
+    let Mu_arr = [Mu_topA, Mu_botA, Mu_top_mid, Mu_bot_mid, Mu_topB, Mu_botB ]
+    let flexure_reinf = []
+    Mu_arr.map(mu => {
+        flexure_reinf.push(beam1.calculateFlexureReinforcement(mu))
+    })
+
     
-    // Generate Summary table 
-    var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
-  
-    generateAllResults(summary_table_data, true, fy, fc)
-  
+
     REPORT.block.finish();
     REPORT.section.break();
   
-    // CALCULATE development and splice length for the specifed rebar diameter
-    let db_detail = rebar_data.generateCalcs(db, psi_e, false, psi_r, psi_o, true);
   
     var output = {
       results: {
-        "Development and Splice Length": {
-          "label": `For ${db} - ${rebar_data.getdb(db)} in.`, 
-          "units": "heading",
+        "beam_mark": {
+            "label":"Beam Mark", //you can add this label key if you want to use cleaner keys
+            "value": beam_mark,
         },
-        "ldh": {
-          "label":"Hook Development Length l<sub>dh</sub>",
-          "value": db_detail.ldh,
-          "units": "in",
+        "db": {
+            "label":"Rebar No.", //you can add this label key if you want to use cleaner keys
+            "value": db,
         },
-        "ldh_seismic": {
-          "label":"Hook Development Length for Seismic l<sub>dh</sub>",
-          "value": db_detail.ldh_seismic,
-          "units": "in",
+        "topA": {
+            "label":"Top Bars (A-end)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[0] + `-${db}`
         },
-        "ld_top": {
-          "label":"Tension Development Length (top bars) l<sub>d,top</sub>",
-          "value": db_detail.ld_top,
-          "units": "in",
-          "info": "With more than 12 in. of fresh concrete placed below the horizontal reinforcement",
+        "botA": {
+            "label":"Bottom Bars (A-end)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[1] + `-${db}`,
         },
-        "ld_bottom": {
-          "label":"Tension Development Length (bottom bars) l<sub>d,bottom</sub>",
-          "value": db_detail.ld_bottom,
-          "units": "in",
+        "top_mid_end": {
+            "label":"Top Bars (Midspan)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[2] + `-${db}`,
         },
-        "ldc": {
-          "label":"Compression Development Length l<sub>dc</sub>",
-          "value": db_detail.ldc,
-          "units": "in",
+        "bot_mid_end": {
+            "label":"Bottom Bars (Midspan)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[3] + `-${db}`,
         },
-        "lst_A": {
-          "label":"Tension Lap Splice Class A l<sub>st,A</sub>",
-          "value": db_detail.lst.A,
-          "units": "in",
+        "topB": {
+            "label":"Top Bars (B-end)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[4] + `-${db}`
         },
-        "lst_B": {
-          "label":"Tension Lap Splice Class B l<sub>st,B</sub>",
-          "value": db_detail.lst.B,
-          "units": "in",
+        "botB": {
+            "label":"Bottom Bars (B-end)", //you can add this label key if you want to use cleaner keys
+            "value": flexure_reinf[5] + `-${db}`,
         },
-        "lsc": {
-          "label":"Compression Lap Splice l<sub>sc</sub>",
-          "value": db_detail.lsc,
-          "units": "in",
-        },
-  
       },
       report: REPORT,
     };
   
     return output;
+
+    // id uid8e326f3f13ec8
+
+            
   
   };
   
