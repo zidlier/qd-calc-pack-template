@@ -1,0 +1,229 @@
+{
+	"meta": {
+		"name": "ACI 318M-19 Singly Reinforced Concrete Beam Designer",
+		"short_description": "ACI 318M-19 Singly Reinforced Concrete Beam Designer",
+		"long_description": "Generate ACI 318M-19 Singly Reinforced Concrete Beam design output that you can import to your favorite CAD software",
+		"tags": "rebar,concrete",
+		"access": "public",
+		"s3d_integrated": false,
+		"category": "concrete",
+		"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png",
+		"developer": "patrick@skyciv.com",
+		"contact": {
+            "name": "Patrick Aylsworth Garcia. MSCE",
+            "role": "Product Manager",
+            "email": "patrick@skyciv.com",
+            "company": "SkyCiv",
+            "logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png"
+        }
+	},
+	"input_variables": {
+		"sub_heading_1": {
+			"type": "heading",
+			"label": "Material Strength"
+		},
+		"fy": {
+			"type": "dropdown",
+			"label": "Main Reinforcement f<sub>y</sub>",
+			"default": "40000",
+			"units": "psi",
+			"options": [
+				{
+					"value": "40000",
+					"name": "Grade 40"
+				},
+				{
+					"value": "60000",
+					"name": "Grade 60"
+				},
+				{
+					"value": "80000",
+					"name": "Grade 80"
+				},
+				{
+					"value": "100000",
+					"name": "Grade 100"
+				}
+			]
+		},
+        "fyt": {
+			"type": "dropdown",
+			"label": "Transverse Reinforcement f<sub>yt</sub>",
+			"default": "40000",
+			"units": "psi",
+			"options": [
+				{
+					"value": "40000",
+					"name": "Grade 40"
+				},
+				{
+					"value": "60000",
+					"name": "Grade 60"
+				},
+				{
+					"value": "80000",
+					"name": "Grade 80"
+				},
+				{
+					"value": "100000",
+					"name": "Grade 100"
+				}
+			]
+		},
+		"fc": {
+			"info": "Concrete strength, f'<sub>c</sub>",
+			"type": "dropdown",
+			"label": "f'<sub>c</sub>",
+			"default": "3000",
+			"units": "psi",
+			"options": [
+				{
+					"value": "3000",
+					"name": "3000"
+				},
+				{
+					"value": "4000",
+					"name": "4000"
+				},
+				{
+					"value": "5000",
+					"name": "5000"
+				},
+				{
+					"value": "6000",
+					"name": "6000"
+				},
+				{
+					"value": "8000",
+					"name": "8000"
+				},
+				{
+					"value": "10000",
+					"name": "10000"
+				}
+			]
+		},
+		"sub_heading_2": {
+			"type": "heading",
+			"label": "Beam Dimensions"
+		},
+		"b": {
+			"label": "Beam Width, b",
+			"default": 10,
+			"type": "number",
+			"min": 8,
+			"max": 50
+		},
+        "h": {
+			"label": "Beam Depth, h",
+			"default": 20,
+			"type": "number",
+			"min": 8,
+			"max": 100
+		},
+		"condition": {
+			"type": "dropdown",
+			"label": "Spacing/cover condition of rebar",
+			"default": "case_a",
+			"options": [
+				{
+					"value": "case_a",
+					"name": "Clear spacing of bars or wires being developed or lap spliced not less than db, clear cover at least db, and stirrups or ties throughout Ɛd not less than the Code minimum"
+				},
+				{
+					"value": "case_b",
+					"name": "Clear spacing of bars or wires being developed or lap spliced at least 2db and clear cover at least db"
+				},
+				{
+					"value": "other_cases",
+					"name": "Other cases"
+				}
+			]
+		},
+        "sub_heading_3": {
+			"type": "heading",
+			"label": "Reinforcements"
+		},
+		"db": {
+			"type": "dropdown",
+			"label": "Main Reinforcement d<sub>b</sub>",
+			"default": "#5",
+			"options": [
+				{
+					"value": "#3",
+					"name": "#3 - 0.375 in."
+				},
+				{
+					"value": "#4",
+					"name": "#4 - 0.50 in."
+				},
+				{
+					"value": "#5",
+					"name": "#5 - 0.625 in."
+				},
+				{
+					"value": "#6",
+					"name": "#6 - 0.75 in."
+				},
+				{
+					"value": "#7",
+					"name": "#7 - 0.875 in."
+				},
+				{
+					"value": "#8",
+					"name": "#8 - 1.0 in."
+				},
+				{
+					"value": "#9",
+					"name": "#9 - 1.128 in."
+				},
+				{
+					"value": "#10",
+					"name": "#10 - 1.27 in."
+				},
+				{
+					"value": "#11",
+					"name": "#11 - 1.41 in."
+				}
+			]
+		},
+        "ds": {
+			"type": "dropdown",
+			"label": "Transverse Reinforcement d<sub>s</sub>",
+			"default": "#3",
+			"options": [
+				{
+					"value": "#3",
+					"name": "#3 - 0.375 in."
+				},
+				{
+					"value": "#4",
+					"name": "#4 - 0.50 in."
+				},
+				{
+					"value": "#5",
+					"name": "#5 - 0.625 in."
+				},
+				{
+					"value": "#6",
+					"name": "#6 - 0.75 in."
+				},
+				{
+					"value": "#7",
+					"name": "#7 - 0.875 in."
+				},
+				{
+					"value": "#8",
+					"name": "#8 - 1.0 in."
+				}
+			]
+		},
+		"C_c": {
+			"label": "Concrete cover, C<sub>c</sub>",
+			"default": 1.6,
+			"type": "number",
+			"min": 1,
+			"max": 5
+		}
+	}
+}

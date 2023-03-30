@@ -1,0 +1,197 @@
+{
+	"meta": {
+		"name": "ACI 318-19 Splice and Development Length Generator",
+		"short_description": "ACI 318-19 splice and development length generator",
+		"long_description": "Generate splice and development length table of deformed rebar for a specific concrete and rebar strength",
+		"tags": "rebar,concrete",
+		"access": "public",
+		"s3d_integrated": false,
+		"category": "concrete",
+		"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png",
+		"developer": "patrick@skyciv.com",
+		"contact": {
+            "name": "Patrick Aylsworth Garcia. MSCE",
+            "role": "Product Manager",
+            "email": "patrick@skyciv.com",
+            "company": "SkyCiv",
+            "logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png"
+        }
+	},
+	"input_variables": {
+		"sub_heading_1": {
+			"type": "heading",
+			"label": "Material Strength"
+		},
+		"fy": {
+			"type": "dropdown",
+			"label": "f<sub>y</sub>",
+			"default": "40000",
+			"units": "psi",
+			"options": [
+				{
+					"value": "40000",
+					"name": "Grade 40"
+				},
+				{
+					"value": "60000",
+					"name": "Grade 60"
+				},
+				{
+					"value": "80000",
+					"name": "Grade 80"
+				},
+				{
+					"value": "100000",
+					"name": "Grade 100"
+				}
+			]
+		},
+		"fc": {
+			"info": "Concrete strength, f'<sub>c</sub>",
+			"type": "dropdown",
+			"label": "f'<sub>c</sub>",
+			"default": "3000",
+			"units": "psi",
+			"options": [
+				{
+					"value": "3000",
+					"name": "3000"
+				},
+				{
+					"value": "4000",
+					"name": "4000"
+				},
+				{
+					"value": "5000",
+					"name": "5000"
+				},
+				{
+					"value": "6000",
+					"name": "6000"
+				},
+				{
+					"value": "8000",
+					"name": "8000"
+				},
+				{
+					"value": "10000",
+					"name": "10000"
+				}
+			]
+		},
+		"sub_heading_4": {
+			"type": "heading",
+			"label": "For Development Length in Tension"
+		},
+		"lambda": {
+			"type": "dropdown",
+			"label": "Modification Factor for Concrete, λ",
+			"default": "1.0",
+			"options": [
+				{
+					"value": "1.0",
+					"name": "Normalweight Concrete λ = 1.0"
+				},
+				{
+					"value": "0.75",
+					"name": "Lightweight Concrete λ = 0.75"
+				}
+			]
+		},
+		"psi_e": {
+			"label": "Modification Factor for Epoxy Coating, Ψ<sub>e</sub>",
+			"default": 1.0,
+			"type": "number",
+			"min": 1.0,
+			"max": 1.5,
+			"info": "For development length of straight and hooked deformed bars in tension"
+		},
+		"condition": {
+			"type": "dropdown",
+			"label": "Spacing/cover condition of rebar",
+			"default": "case_a",
+			"options": [
+				{
+					"value": "case_a",
+					"name": "Clear spacing of bars or wires being developed or lap spliced not less than db, clear cover at least db, and stirrups or ties throughout Ɛd not less than the Code minimum"
+				},
+				{
+					"value": "case_b",
+					"name": "Clear spacing of bars or wires being developed or lap spliced at least 2db and clear cover at least db"
+				},
+				{
+					"value": "other_cases",
+					"name": "Other cases"
+				}
+			]
+		},
+
+		"sub_heading_2": {
+			"type": "heading",
+			"label": "For Development Length Hooked Deformed Bars in Tension"
+		},
+		"psi_r": {
+			"label": "Modification Factor for Confining Reinforcement, Ψ<sub>r</sub>",
+			"default": 1.0,
+			"type": "number",
+			"min": 1.0,
+			"max": 1.6,
+			"info": "For development length of hooked deformed bars in tension"
+		},
+		"psi_o": {
+			"label": "Modification Factor for Location, Ψ<sub>o</sub>",
+			"default": 1.0,
+			"type": "number",
+			"min": 1.0,
+			"max": 1.25,
+			"info": "For development length of hooked deformed bars in tension"
+		},
+		"sub_heading_3": {
+			"type": "heading",
+			"label": "Calculate for Development and Splice Length for a Specific Rebar"
+		},
+		"db": {
+			"type": "dropdown",
+			"label": "Selected Rebar d<sub>b</sub>",
+			"default": "#5",
+			"options": [
+				{
+					"value": "#3",
+					"name": "#3 - 0.375 in."
+				},
+				{
+					"value": "#4",
+					"name": "#4 - 0.50 in."
+				},
+				{
+					"value": "#5",
+					"name": "#5 - 0.625 in."
+				},
+				{
+					"value": "#6",
+					"name": "#6 - 0.75 in."
+				},
+				{
+					"value": "#7",
+					"name": "#7 - 0.875 in."
+				},
+				{
+					"value": "#8",
+					"name": "#8 - 1.0 in."
+				},
+				{
+					"value": "#9",
+					"name": "#9 - 1.128 in."
+				},
+				{
+					"value": "#10",
+					"name": "#10 - 1.27 in."
+				},
+				{
+					"value": "#11",
+					"name": "#11 - 1.41 in."
+				}
+			]
+		}
+	}
+}
