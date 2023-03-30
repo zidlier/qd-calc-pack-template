@@ -195,6 +195,20 @@ module.exports = function (input_json) {
 
     }
     getdb (rebarNo) {
+      let rebar_name_ui = {
+        '#3': "3",
+        '#4': "4",
+        '#5': "5",
+        '#6': "6",
+        '#7': "7",
+        '#8': "8",
+        '#9': "9",
+        '#10': "10",
+        '#11': "11"
+      };
+      
+      if (isNaN(parseFloat(rebarNo))) rebarNo = rebar_name_ui[rebarNo];
+
       return this.rebars[rebarNo].db;
     }
     getMinStandardHookInTension(rebarNo, hookType) {
@@ -684,7 +698,7 @@ module.exports = function (input_json) {
       ReportHelpers.image({
         new_block: true,
         src: hook_90deg_img,
-        width: "80%"
+        width: "60%"
       });
     }
     
@@ -695,7 +709,7 @@ module.exports = function (input_json) {
       ReportHelpers.image({
         new_block: true,
         src: hook_180deg_img,
-        width: "80%"
+        width: "60%"
       });
     }
     
@@ -719,21 +733,21 @@ module.exports = function (input_json) {
       ReportHelpers.image({
         new_block: true,
         src: stirrup_bend_90,
-        width: "80%"
+        width: "60%"
       });
   
       // add hook figure
       ReportHelpers.image({
         new_block: true,
         src: stirrup_bend_135,
-        width: "80%"
+        width: "60%"
       });
   
       // add hook figure
       ReportHelpers.image({
         new_block: true,
         src: stirrup_bend_180,
-        width: "80%"
+        width: "60%"
       });
     }
     
@@ -788,6 +802,10 @@ module.exports = function (input_json) {
 
   var output = {
     results: {
+      "Development and Splice Length": {
+        "label": `For ${db} - ${rebar_data.getdb(db)} in.`, 
+        "units": "heading",
+      },
       "ldh": {
         "label":"Hook Development Length l<sub>dh</sub>",
         "value": db_detail.ldh,
