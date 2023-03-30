@@ -641,7 +641,7 @@ let verified_data = [
       "ld_bottom_darwin": 54,
       "ld_top_darwin": 69.75,
       "ldc_darwin": 18,
-      "ld_bottom_aci": 44.25,
+      "ld_bottom_aci": 53.25,
       "ldh_aci": 12.2
     },
     {
@@ -932,16 +932,24 @@ verified_data.map(obj => {
     let this_rebar_detail = this_rebar.generateCalcs(rebar, psi_e, false, psi_r, psi_o, false);
     let {ldh, ld_top, ld_bottom, ldc} = this_rebar_detail
 
+    let dif_bottom_darwin = Math.round( (ld_bottom_darwin - ld_bottom)*100)/100
+    let dif_bottom_aci = (ld_bottom_aci) ? Math.round( (ld_bottom_aci - ld_bottom)*100)/100 : ''
+
+    let dif_top = ld_top_darwin- ld_top
+     
     res_obj_ld = {
-        rebar, fy, fc, condition, ld_bottom_darwin, ld_bottom_aci, ld_bottom, ld_top_darwin, ld_top
+        rebar, fy, fc, condition, ld_bottom_darwin, ld_bottom_aci, ld_bottom, dif_bottom_darwin, dif_bottom_aci, ld_top_darwin, ld_top, dif_top
     }
     
+    let dif_ldh =  (ldh_aci != '') ? Math.round((ldh-ldh_aci)*100)/100 : ''
+    let dif_ldc =  (ldc_darwin != '') ? Math.round((ldc-ldc_darwin)*100)/100 : ''
+
     res_obj_ldh = {
-        rebar, fy, fc, condition, ldh_aci, ldh, dif: (ldh_aci != '') ? ldh-ldh_aci : ''
+        rebar, fy, fc, condition, ldh_aci, ldh, dif: dif_ldh
     }
 
     res_obj_ldc = {
-        rebar, fy, fc, condition, ldc_darwin, ldc, dif: (ldc_darwin != '') ? ldc-ldc_darwin : ''
+        rebar, fy, fc, condition, ldc_darwin, ldc, dif: dif_ldc
     }
 
     comparison_result_ld.push(res_obj_ld)
@@ -952,17 +960,16 @@ verified_data.map(obj => {
 
 
 console.log('Comparing ld')
-// console.table(comparison_result_ld)
+console.table(comparison_result_ld)
 
-console.log(JSON.stringify(comparison_result_ld))
+// console.log(JSON.stringify(comparison_result_ld))
 
 console.log('Comparing ldh')
-// console.table(comparison_result_ldh)
-console.log(JSON.stringify(comparison_result_ldh))
-
+console.table(comparison_result_ldh)
+// console.log(JSON.stringify(comparison_result_ldh))
 
 console.log('Comparing ldc')
-// console.table(comparison_result_ldc)
-console.log(JSON.stringify(comparison_result_ldc))
+console.table(comparison_result_ldc)
+// console.log(JSON.stringify(comparison_result_ldc))
 
   

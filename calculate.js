@@ -29,17 +29,7 @@ module.exports = function (input_json) {
     if (isNaN(res)) return val;
     return res;
   };
-
-  var customBlock = function (obj, pagebreak, REPORT) {
-    let font_size = obj.font_size ? obj.font_size : 3;
-    REPORT.block.new(obj.title, font_size);
-    if (obj.reference) REPORT.block.addReference(obj.reference); // by default references are aligned to the top of a block
-    if (obj.content) REPORT.block.addCalculation(obj.content);
-    if (obj.result) REPORT.block.addResult(obj.result); // by default results are aligned to the bottom of a block
-    REPORT.block.finish();
-    if (pagebreak) REPORT.section.break();
-  };
-
+  
   class RebarDetails {
     constructor(fy, fc, lambda, spacingCoverCondition, generateDetailedReport) {
       
@@ -785,7 +775,6 @@ module.exports = function (input_json) {
   // Create Rebar Detail using from fy, fc, lambda
   var rebar_data = new RebarDetails(fy, fc, lambda, condition);
   
-  // CALCULATE ALL LENGTH FOR REBAR DIAMETER
   // Generate Summary table 
   var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
 
