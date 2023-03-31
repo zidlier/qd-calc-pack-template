@@ -5,7 +5,7 @@
 		"long_description": "Generate ACI 318-19 Singly Reinforced Concrete Beam design output that you can import to your favorite CAD software",
 		"tags": "rebar,concrete",
 		"access": "private",
-		"s3d_integrated": false,
+		"s3d_integrated": true,
 		"category": "concrete",
 		"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png",
 		"developer": "patrick@skyciv.com",

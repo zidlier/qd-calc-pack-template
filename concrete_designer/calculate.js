@@ -136,9 +136,11 @@ module.exports = function (input_json) {
         }
         calculateFlexureReinforcement(designMomentMu) {
             // designMomentMu in kip-ft 
-            designMomentMu = designMomentMu*12*1000// convert to lb-in
+            designMomentMu = Math.abs(designMomentMu*12*1000) // convert to lb-in
             let As = calculateAs(designMomentMu, this.fc, this.fy, this.b, this.d );
-            return Math.ceil(As/this.Ab)
+            let no_of_rebar_required = Math.ceil(As/this.Ab)
+            no_of_rebar_required = Math.max(2, no_of_rebar_required)
+            return no_of_rebar_required
 
         }
         calculateShearCapacityOfConcreteVc() {
@@ -223,28 +225,28 @@ module.exports = function (input_json) {
             "value": db,
         },
         "topA": {
-            "label":"Top Bars (A-end)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[0] + `-${db}`
+            "label":`Top Bars (A-end)`,
+            "value": parseInt(flexure_reinf[0])
         },
         "botA": {
-            "label":"Bottom Bars (A-end)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[1] + `-${db}`,
+            "label":`Bottom Bars (A-end)`,
+            "value": parseInt(flexure_reinf[1])
         },
         "top_mid_end": {
-            "label":"Top Bars (Midspan)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[2] + `-${db}`,
+            "label":`Top Bars (Midspan)`,
+            "value": parseInt(flexure_reinf[2])
         },
         "bot_mid_end": {
-            "label":"Bottom Bars (Midspan)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[3] + `-${db}`,
+            "label":`Bottom Bars (Midspan)`,
+            "value": parseInt(flexure_reinf[3])
         },
         "topB": {
-            "label":"Top Bars (B-end)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[4] + `-${db}`
+            "label":`Top Bars (B-end)`,
+            "value": parseInt(flexure_reinf[4])
         },
         "botB": {
-            "label":"Bottom Bars (B-end)", //you can add this label key if you want to use cleaner keys
-            "value": flexure_reinf[5] + `-${db}`,
+            "label":`Bottom Bars (B-end)`,
+            "value": parseInt(flexure_reinf[5])
         },
       },
       report: REPORT,

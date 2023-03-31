@@ -11,7 +11,7 @@ module.exports = function(s3d_model, analysis_results) {
         "fc": "3000",
         "b": 10,
         "h": 20,
-        "db": "#3",
+        "db": "#5",
         "ds": "#3",
         "C_c": 1.6,
         "Mu_topA": 100,
@@ -22,108 +22,109 @@ module.exports = function(s3d_model, analysis_results) {
         "Mu_botB": 100
     }
 
-    let all_design_forces = StructureHelpers.getDesignForces(analysis_results);
+    let envelope_min_Mz = null
+    let envelope_max_Mz = null
+    let envelope_min_Vy = null
+    let envelope_max_Vy = null
 
-    let beams = S3D.grouping.members.bySecName({
-        structure: s3d_model,
-        section: '400 x 275',
-    });
+    for (let i = 0; i < analysis_results.length; i++ ) {
+        let obj = analysis_results[i]
 
-    let design_members = [];
+        if (obj && obj.type == 'envelope' && (obj.name == 'Envelope Min' || obj.name == 'Envelope+Min')) {
+            envelope_min_Mz = obj.bmd_z
+            envelope_min_Vy = obj.sfd_y
+        } 
+
+        if (obj && obj.type == 'envelope' && (obj.name == 'Envelope Max' || obj.name == 'Envelope+Max')) {
+            envelope_max_Mz = obj.bmd_z 
+            envelope_max_Vy = obj.sfd_y
+        } 
+    }
+    
+
+    // Get all vertical members
+    // let columns_arr = S3D.grouping.members.byVector({
+    //     structure: s3d_model,
+    //     unfiltered_ids: null,
+    //     vector: [0, 1, 0], tol: 5
+    // });
+
+    let columns_arr = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+
+    // Filter vertical members to get beam members
+    var beam_members = {}
+
     var members = s3d_model.elements;
 
-    for (var i =0; i < members.length; i++) {
-        var this_member = members[i];
-        if (!this_member) continue;
-        if (!beams.hasOwnProperty(i)) continue;
+    let design_members = [];
 
-        let this_member_input = JSON.parse(JSON.stringify(default_input)); //start with this
-        let design_forces = all_design_forces[i];
+    function getDesignMoments (MzArrEnveMin, MzArrEnveMax) {
 
-        this_member_input.L = UnitHelpers.convert(span_L, s3d_units.length, "ft");
-        this_member_input.Mz = UnitHelpers.convert(design_forces.Mz_abs, s3d_units.moment, "kip-ft");
-        this_member_input.My = UnitHelpers.convert(design_forces.My_abs, s3d_units.moment, "kip-ft");
-        this_member_input.Vz = UnitHelpers.convert(design_forces.Vz_abs, s3d_units.force, "kip");
-        this_member_input.Vy = UnitHelpers.convert(design_forces.Vy_abs, s3d_units.force, "kip");
+        let Mz_midspan_max = []
+        let Mz_midspan_min = []
 
-        //sections data
-        let section_id = this_member[2];
-        let section_obj = s3d_model.sections[section_id];
+        for (let i = 2; i < MzArrEnveMin.length-2; i++) {
+            let mz_min = MzArrEnveMin[i]
+            mz_min = (typeof mz_min == 'object') ? mz_min[1] : mz_min
+
+            let mz_max = MzArrEnveMax[i]
+            mz_max = (typeof mz_max == 'object') ? mz_max[1] : mz_max
+
+            Mz_midspan_min.push(mz_min)
+            Mz_midspan_max.push(mz_max)
+        }
         
-        let shape = section_obj.aux.polygons[0].shape;
-        let dims = section_obj.aux.polygons[0].dimensions;
-        this_member_input.t1 = "";
-        this_member_input.t2 = "";
-
-        if (shape == "hollow rectangle") {
-           
-        } else {
-            this_member_input.shape = "custom";
-            this_member_input.s3d_section = section_id;
-            if (section_obj.aux.depth) this_member_input.d = UnitHelpers.convert(section_obj.aux.depth, s3d_units.section_length, "mm");
-            if (section_obj.aux.width) this_member_input.b = UnitHelpers.convert(section_obj.aux.width, s3d_units.section_length, "mm");
-            
+        let res = {
+            'Mu_topA': Math.min(MzArrEnveMin[0], MzArrEnveMin[1], MzArrEnveMin[2]),
+            'Mu_botA': Math.min(MzArrEnveMax[0], MzArrEnveMax[1], MzArrEnveMax[2]),
+            'Mu_topB': Math.min(MzArrEnveMin[MzArrEnveMin.length-1], MzArrEnveMin[MzArrEnveMin.length-2], MzArrEnveMin[MzArrEnveMin.length-3]),
+            'Mu_botB': Math.min(MzArrEnveMax[MzArrEnveMax.length-1], MzArrEnveMax[MzArrEnveMax.length-2], MzArrEnveMax[MzArrEnveMax.length-3]),
+            'Mu_top_mid': Math.min(...Mz_midspan_min),
+            'Mu_bot_mid': Math.max(...Mz_midspan_max),
         }
 
-        if (!this_member_input.t2 && this_member_input.t1) this_member_input.t2 = this_member_input.t1; //just make them the same if blank
-
-        //clean and round some data
-        this_member_input.L = parseFloat(this_member_input.L.toFixed(0))
-        this_member_input.J = parseFloat(this_member_input.J.toFixed(0))
-        this_member_input.Mz = parseFloat(this_member_input.Mz.toFixed(0))
-        this_member_input.My = parseFloat(this_member_input.My.toFixed(0))
-        this_member_input.Vy = parseFloat(this_member_input.Vy.toFixed(0))
-        this_member_input.Vz = parseFloat(this_member_input.Vz.toFixed(0))
-        this_member_input.Nc = parseFloat(this_member_input.Nc.toFixed(0))
-        this_member_input.Nt = parseFloat(this_member_input.Nt.toFixed(0))
-
-        if (this_member_input.h) this_member_input.h = parseFloat(this_member_input.h.toFixed(0))
-        if (this_member_input.b) this_member_input.b = parseFloat(this_member_input.b.toFixed(0))
-        
-        design_members[i] = this_member_input; //add to array
-
+        return res
     }
+
+    for (let id = 1; id < members.length; id++) {
+        if (columns_arr.indexOf(id) == -1 && envelope_min_Mz && envelope_max_Mz && envelope_min_Vy && envelope_max_Vy) {
+            let beamID = String(id)
+            let this_member_input = JSON.parse(JSON.stringify(default_input)); //start with this
+            let this_member = members[id]
+            if (!this_member) continue
+
+            this_member_input.beam_mark = beamID
+
+            let this_Mz_min = envelope_min_Mz[beamID]
+            let this_Mz_max = envelope_max_Mz[beamID]
+
+            let {Mu_topA, Mu_botA, Mu_topB, Mu_botB, Mu_top_mid, Mu_bot_mid} = getDesignMoments(this_Mz_min, this_Mz_max)
+
+            Mu_botA = (Mu_botA < 0) ? 0 : Mu_botA
+            Mu_botB = (Mu_botB < 0) ? 0 : Mu_botB
+            Mu_top_mid = (Mu_top_mid > 0) ? 0 : Mu_top_mid
+
+            this_member_input.Mu_topA = Math.round(Mu_topA*100)/100
+            this_member_input.Mu_botA = Math.round(Mu_botA*100)/100
+            this_member_input.Mu_topB = Math.round(Mu_topB*100)/100
+            this_member_input.Mu_botB = Math.round(Mu_botB*100)/100
+            this_member_input.Mu_top_mid = Math.round(Mu_top_mid*100)/100
+            this_member_input.Mu_bot_mid = Math.round(Mu_bot_mid*100)/100
+            
+            let section_id = this_member[2];
+            let section_obj = s3d_model.sections[section_id];
+            if (section_obj.aux.depth) this_member_input.d = UnitHelpers.convert(section_obj.aux.depth, s3d_units.section_length, "in");
+            if (section_obj.aux.width) this_member_input.b = UnitHelpers.convert(section_obj.aux.width, s3d_units.section_length, "in");
+
+            design_members.push(this_member_input)
+        } 
+    }
+
 
     if (design_members.length == 0) { //always a good idea - tell the user why this could be the case
         throw new Error("No Members Imported. Check your materials are set to 'aluminum' and that the sections are hollow rectangular");
     }
 
     return design_members;
-
-
-    var input_json = {
-        "auth": "patrick@skyciv.com",
-        "key": "YOUR API TOKEN, get this from https://platform.skyciv.com/api",
-        "uid": "draft/uid8e326f3f13ec8",
-        "input": {
-            "beam_mark": "1",
-            "fy": "40000",
-            "fyt": "40000",
-            "fc": "3000",
-            "b": 10,
-            "h": 20,
-            "db": "#3",
-            "ds": "#3",
-            "C_c": 1.6,
-            "Mu_topA": 100,
-            "Mu_botA": 100,
-            "Mu_top_mid": 100,
-            "Mu_bot_mid": 100,
-            "Mu_topB": 100,
-            "Mu_botB": 100,
-            "project_details": {
-                "units": {
-                    "project_units": ""
-                },
-                "project_company": "",
-                "project_name": "",
-                "project_designer": "",
-                "project_id": "",
-                "project_client": "",
-                "project_notes": ""
-            }
-        }
-    } 
-                          
 
 }
