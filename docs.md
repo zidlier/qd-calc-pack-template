@@ -7,20 +7,20 @@ This tool is limited to imperial units only. Note that the calculator will calcu
 ## How to Use this Calculator
 
 Step 1: Specify material strength (fy and fc) at the left menu
-![alt text](./images/2.png)
+![Step 1](./images/2.png)
 
 Step 2: Specify modification factors - for calculating development length
-![alt text](./images/3.png)
+![Step 2](./images/3.png)
 
 Step 3: Specify the rebar that you want to get the detailed calculation of the splice and development length
-![alt text](./images/4.png)
+![Step 3](./images/4.png)
 
 Step 4: Click Run button at the upper right part of the screen. It will automatically generate a table of splice and development lengths specific for the fy and fc values for all the rebar diameters. It will print the output for the selected rebar at the right menu.
-![alt text](./images/5.png)
+![Step 4](./images/5.png)
 
 ## Verification
 
-Check verification.xlsx file for comparison of the calculated values with the references.
+Check [verification.xlsx](./verification.xlsx) file for comparison of the calculated values with the references.
 
 References used in verification:
 
