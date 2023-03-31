@@ -777,8 +777,8 @@ module.exports = function (input_json) {
     REPORT.block.new()
     REPORT.block.addCalculation(`Note:<br>
     <ol type="1">
-      <li>Class A tension lap splice: half or fewer of the bars spliced at any location and 0 ≤ fs ≤ 0.5fy in tension (ACI Code Table 10.7.5.2.2)</li>
-      <li>Class B tension lap splices: more than half of the bars spliced at any section and/or fs > 0.5fy in tension (ACI Code Table 10.7.5.2.2)</li>
+      <li>Class A tension lap splice: half or fewer of the bars spliced at any location and 0 ≤ fs ≤ 0.5fy in tension (ACI 318-19 Table 10.7.5.2.2)</li>
+      <li>Class B tension lap splices: more than half of the bars spliced at any section and/or fs > 0.5fy in tension (ACI 318-19 Table 10.7.5.2.2)</li>
     </ol>`);
 
     REPORT.block.finish()
