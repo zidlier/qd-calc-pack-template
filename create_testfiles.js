@@ -293,7 +293,7 @@ test_files.map(obj => {
     
     let condition_name = (condition =='other_cases') ? 'caseB' : 'caseA'
 
-    let dirname = `./created_testfiles/${rebar}_${fc}_${fy}_${condition_name}`
+    let dirname = `./testfiles/${rebar}_${fc}_${fy}_${condition_name}`
     if (!fs.existsSync(dirname)){
         fs.mkdirSync(dirname);
     }
