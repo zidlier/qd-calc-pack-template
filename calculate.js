@@ -37,7 +37,7 @@ module.exports = function (input_json) {
 			this.fy = fy;
 			this.fc = fc;
 			this.lambda = lambda;
-			this.condition = spacingCoverCondition
+			this.condition = spacingCoverCondition;
 
 			if (typeof generateDetailedReport == 'undefined') generateDetailedReport = false; 
 			this.generateDetailedReport = generateDetailedReport;
@@ -415,7 +415,7 @@ module.exports = function (input_json) {
 				lsc = Math.max( (0.0009*fy-24)*db, lst);
 			}
 			
-			lsc = Math.ceil(lsc)
+			lsc = Math.ceil(lsc);
 
 			if (this.generateDetailedReport && this.generateCalcReport) {
 				// GENERATE CALCS in REPORT
@@ -645,12 +645,12 @@ module.exports = function (input_json) {
 		
 		generateResultsTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
 
-		REPORT.block.new()
+		REPORT.block.new();
 		REPORT.block.addCalculation(`Note:<br>
 		<ol type="1">
 			<li>Top bars are horizontal bars with more than 12 in. depth of concrete cast below reinforcement.</li>
 		</ol>`);
-		REPORT.block.finish()
+		REPORT.block.finish();
 		
 		if (showImages) {
 			ReportHelpers.image({
@@ -762,14 +762,14 @@ module.exports = function (input_json) {
 		generateResultsTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
 		
 		// add Note on splices - class A and B
-		REPORT.block.new()
+		REPORT.block.new();
 		REPORT.block.addCalculation(`Note:<br>
 		<ol type="1">
 			<li>Class A tension lap splice: half or fewer of the bars spliced at any location and 0 ≤ fs ≤ 0.5fy in tension (ACI 318-19 Table 10.7.5.2.2)</li>
 			<li>Class B tension lap splices: more than half of the bars spliced at any section and/or fs > 0.5fy in tension (ACI 318-19 Table 10.7.5.2.2)</li>
 		</ol>`);
 
-		REPORT.block.finish()
+		REPORT.block.finish();
 
 		if (showImages) {
 			// Compression splice
@@ -803,7 +803,7 @@ module.exports = function (input_json) {
 	// Generate Summary table 
 	var summary_table_data = rebar_data.generateSummaryTableData(psi_e, psi_r, psi_o);
 
-	generateAllResults(summary_table_data, true, fy, fc)
+	generateAllResults(summary_table_data, true, fy, fc);
 
 	REPORT.block.finish();
 	REPORT.section.break();

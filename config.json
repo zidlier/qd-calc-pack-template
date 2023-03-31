@@ -25,7 +25,8 @@
 		"fy": {
 			"type": "dropdown",
 			"label": "f<sub>y</sub>",
-			"default": "40000",
+			"info": "Yield strength of steel",
+			"default": "60000",
 			"units": "psi",
 			"options": [
 				{
@@ -47,10 +48,10 @@
 			]
 		},
 		"fc": {
-			"info": "Concrete strength, f'<sub>c</sub>",
+			"info": "28-day concrete compressive strength",
 			"type": "dropdown",
 			"label": "f'<sub>c</sub>",
-			"default": "3000",
+			"default": "4000",
 			"units": "psi",
 			"options": [
 				{
@@ -85,7 +86,8 @@
 		},
 		"lambda": {
 			"type": "dropdown",
-			"label": "Modification Factor for Concrete, λ",
+			"label": "λ",
+			"info": "Modification Factor for Concrete",
 			"default": "1.0",
 			"options": [
 				{
@@ -99,16 +101,17 @@
 			]
 		},
 		"psi_e": {
-			"label": "Modification Factor for Epoxy Coating, Ψ<sub>e</sub>",
+			"label": "Ψ<sub>e</sub>",
 			"default": 1.0,
 			"type": "number",
 			"min": 1.0,
 			"max": 1.5,
-			"info": "For development length of straight and hooked deformed bars in tension"
+			"info": "Modification Factor for Epoxy Coating. For development length of straight and hooked deformed bars in tension"
 		},
 		"condition": {
 			"type": "dropdown",
 			"label": "Spacing/cover condition of rebar",
+			"info": "For development length of straight and hooked deformed bars in tension",
 			"default": "case_a",
 			"options": [
 				{
@@ -125,26 +128,25 @@
 				}
 			]
 		},
-
 		"sub_heading_2": {
 			"type": "heading",
 			"label": "For Development Length Hooked Deformed Bars in Tension"
 		},
 		"psi_r": {
-			"label": "Modification Factor for Confining Reinforcement, Ψ<sub>r</sub>",
+			"label": "Ψ<sub>r</sub>",
 			"default": 1.0,
 			"type": "number",
 			"min": 1.0,
 			"max": 1.6,
-			"info": "For development length of hooked deformed bars in tension"
+			"info": "Modification Factor for Confining Reinforcement. For development length of hooked deformed bars in tension"
 		},
 		"psi_o": {
-			"label": "Modification Factor for Location, Ψ<sub>o</sub>",
+			"label": "Ψ<sub>o</sub>",
 			"default": 1.0,
 			"type": "number",
 			"min": 1.0,
 			"max": 1.25,
-			"info": "For development length of hooked deformed bars in tension"
+			"info": "Modification Factor for Location. For development length of hooked deformed bars in tension"
 		},
 		"sub_heading_3": {
 			"type": "heading",
@@ -152,7 +154,8 @@
 		},
 		"db": {
 			"type": "dropdown",
-			"label": "Selected Rebar d<sub>b</sub>",
+			"label": "d<sub>b</sub>",
+			"info": "Select a rebar diameter to be calculated",
 			"default": "#5",
 			"options": [
 				{
