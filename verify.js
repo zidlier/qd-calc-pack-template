@@ -389,6 +389,7 @@ let psi_o = 1.0
 let comparison_result_ld = []
 let comparison_result_ldh = []
 let comparison_result_ldc = []
+let comparison_result_lst = []
 
 let verified_data = [
     {
@@ -925,12 +926,13 @@ verified_data.map(obj => {
     let res_obj_ld = {}
     let res_obj_ldc = {}
     let res_obj_ldh = {}
+    let res_obj_lsc = {}
 
     let {rebar, fy, fc, condition, ld_bottom_darwin, ld_bottom_aci, ld_top_darwin, ldc_darwin, ldh_aci} = obj
 
     let this_rebar = new RebarDetails(fy, fc, lambda, condition);
     let this_rebar_detail = this_rebar.generateCalcs(rebar, psi_e, false, psi_r, psi_o, false);
-    let {ldh, ld_top, ld_bottom, ldc} = this_rebar_detail
+    let {ldh, ld_top, ld_bottom, ldc, lsc, lst} = this_rebar_detail
 
     let dif_bottom_darwin = Math.round( (ld_bottom_darwin - ld_bottom)*100)/100
     let dif_bottom_aci = (ld_bottom_aci) ? Math.round( (ld_bottom_aci - ld_bottom)*100)/100 : ''
@@ -952,9 +954,14 @@ verified_data.map(obj => {
         rebar, fy, fc, condition, ldc_darwin, ldc, dif: dif_ldc
     }
 
+    res_obj_lsc = {
+      rebar, fy, fc, condition, lsc, lst_A: lst.A, lst_B: lst.B
+    }
+
     comparison_result_ld.push(res_obj_ld)
     comparison_result_ldh.push(res_obj_ldh)
     comparison_result_ldc.push(res_obj_ldc)
+    comparison_result_lst.push(res_obj_lsc)
 
 })
 
@@ -971,5 +978,10 @@ console.table(comparison_result_ldh)
 console.log('Comparing ldc')
 console.table(comparison_result_ldc)
 // console.log(JSON.stringify(comparison_result_ldc))
+
+console.log('Comparing lap splices')
+console.table(comparison_result_lst)
+console.log(JSON.stringify(comparison_result_lst))
+
 
   

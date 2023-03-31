@@ -655,6 +655,15 @@ module.exports = function (input_json) {
     
     generateResultsTable (straight_ld_data_header, straight_ld_data, {heading: `Development Length for fy = ${fy} psi and f'c = ${fc} psi`,});
 
+
+    REPORT.block.new()
+    REPORT.block.addCalculation(`Note:<br>
+    <ol type="1">
+      <li>Top bars are horizontal bars with more than 12 in. depth of concrete cast below reinforcement.</li>
+    </ol>`);
+
+    REPORT.block.finish()
+    
     if (showImages) {
       ReportHelpers.image({
         new_block: true,
@@ -670,12 +679,6 @@ module.exports = function (input_json) {
       });
     }
 
-    REPORT.block.addCalculation(`Note:<br>
-    <ol type="1">
-      <li>Top bars are horizontal bars with more than 12 in. depth of concrete cast below reinforcement.</li>
-      <li>Lap splice shall be “Class B" tension lap splice if more than one-half of the bars were spliced at any section, while "Class A" tension lap splice if half or fewer than half of the bars were spliced.</li>
-    </ol>`);
-        
    
     // Generate development length summary table for hooked bars
     let hook_90deg_bend_data_header = [
@@ -771,6 +774,15 @@ module.exports = function (input_json) {
 
     generateResultsTable (splice_data_header, splice_data, {heading: `Splice Length for fy = ${fy} psi and f'c = ${fc} psi`,});
     
+    REPORT.block.new()
+    REPORT.block.addCalculation(`Note:<br>
+    <ol type="1">
+      <li>Class A tension lap splice: half or fewer of the bars spliced at any location and 0 ≤ fs ≤ 0.5fy in tension (ACI Code Table 10.7.5.2.2)</li>
+      <li>Class B tension lap splices: more than half of the bars spliced at any section and/or fs > 0.5fy in tension (ACI Code Table 10.7.5.2.2)</li>
+    </ol>`);
+
+    REPORT.block.finish()
+
     if (showImages) {
       // Compression splice
       ReportHelpers.image({

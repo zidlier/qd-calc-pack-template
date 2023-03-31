@@ -182,6 +182,10 @@ module.exports = function (input_json) {
             let phiVn = phi_shear*(this_Vc+Vs)
             return phiVn
         }
+        calculateMomentCapacityFromRebars(rebarNo, numberOfRebar) {
+            let this_rebar = new Rebar(rebarNo)
+            this_rebar.As
+        }
     }
 
 
@@ -203,7 +207,9 @@ module.exports = function (input_json) {
     logger(beam1.Ab)
 
     let Mu_arr = [Mu_topA, Mu_botA, Mu_top_mid, Mu_bot_mid, Mu_topB, Mu_botB ]
+
     let flexure_reinf = []
+    
     Mu_arr.map(mu => {
         flexure_reinf.push(beam1.calculateFlexureReinforcement(mu))
     })
