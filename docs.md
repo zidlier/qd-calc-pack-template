@@ -15,11 +15,8 @@ Step 2: Specify modification factors - for calculating development length
 Step 3: Specify the rebar that you want to get the detailed calculation of the splice and development length
 ![alt text](./images/4.png)
 
-Step 4: Click Run button at the upper right part of the screen. It will automatically generate a table of splice and development lengths specific for the fy and fc values for all the rebar diameters.
+Step 4: Click Run button at the upper right part of the screen. It will automatically generate a table of splice and development lengths specific for the fy and fc values for all the rebar diameters. It will print the output for the selected rebar at the right menu.
 ![alt text](./images/5.png)
-
-Step 5: It will print the output for the selected rebar at the right menu.
-![alt text](./images/6.png)
 
 ## Verification
 
