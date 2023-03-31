@@ -30,19 +30,19 @@
 			"options": [
 				{
 					"value": "40000",
-					"name": "Grade 40"
+					"name": "40000 (Grade 40)"
 				},
 				{
 					"value": "60000",
-					"name": "Grade 60"
+					"name": "60000 (Grade 60)"
 				},
 				{
 					"value": "80000",
-					"name": "Grade 80"
+					"name": "80000 (Grade 80)"
 				},
 				{
 					"value": "100000",
-					"name": "Grade 100"
+					"name": "100000 (Grade 100)"
 				}
 			]
 		},
