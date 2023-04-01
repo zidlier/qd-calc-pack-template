@@ -41,7 +41,7 @@ Step 2: Load the module in the S3D. Edit/modify the parameters for each beam sec
 ![S3D Step 2](./images/concrete_beam-2.png)
 
 Step 3: Click the Report button to view individual calculation report 
-![S3D Step 3](./images/concrete_beam-2.png)
+![S3D Step 3](./images/concrete_beam-3.png)
 
 
 ## References
