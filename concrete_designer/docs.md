@@ -23,17 +23,26 @@ Calculating for the required spacing of shear reniforcement, the following assum
 
 ## Standalone
 
-Step 1: Specify material strength (fy and fc) at the left menu
-![Step 1](./images/2.png)
+Step 1: Specify material strength (fy and fc), beam dimensions, reinforcement to be used, design moments, and design shear loads at the left menu
+![Step 1](./images/Concrete Beam-4.png)
 
-Step 2: Specify modification factors - for calculating development length
-![Step 2](./images/3.png)
+Step 2: For the shear loads - Vu location and Vu, this can be a single value, or use a comma-separated value for multiple locations
+![Step 1](./images/Concrete Beam-5.png)
 
-Step 3: Specify the rebar that you want to get the detailed calculation of the splice and development length
-![Step 3](./images/4.png)
+Step 3: Click Run button at the upper right part of the screen to generate the calculation report and the number of rebar to be installed for top, bottom bars of A-end, B-end, and midspan of the beam
+![Step 3](./images/Concrete Beam-6.png)
 
-Step 4: Click Run button at the upper right part of the screen. It will automatically generate a table of splice and development lengths specific for the fy and fc values for all the rebar diameters. It will print the output for the selected rebar at the right menu.
-![Step 4](./images/5.png)
+## In S3D
+
+Step 1: Load the module in the S3D. Edit/modify the parameters for each beam section
+![S3D Step 1](./images/Concrete Beam-1.png)
+
+Step 2: Load the module in the S3D. Edit/modify the parameters for each beam section
+![S3D Step 2](./images/Concrete Beam-2.png)
+
+Step 3: Click the Report button to view individual calculation report 
+![S3D Step 3](./images/Concrete Beam-2.png)
+
 
 ## References
 
