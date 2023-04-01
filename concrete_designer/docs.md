@@ -1,4 +1,4 @@
-## Reinforced Concrete Beam Designer as per ACI 318-19 (Imperial)
+## Reinforced concrete_beam Designer as per ACI 318-19 (Imperial)
 
 Calculate the required flexural and shear reinforcement for a rectangular beam and get the corresponding beam schedule in just few clicks!
 
@@ -24,24 +24,24 @@ Calculating for the required spacing of shear reniforcement, the following assum
 ## Standalone
 
 Step 1: Specify material strength (fy and fc), beam dimensions, reinforcement to be used, design moments, and design shear loads at the left menu
-![Step 1](./images/Concrete Beam-4.png)
+![Step 1](./images/concrete_beam-4.png)
 
 Step 2: For the shear loads - Vu location and Vu, this can be a single value, or use a comma-separated value for multiple locations
-![Step 1](./images/Concrete Beam-5.png)
+![Step 1](./images/concrete_beam-5.png)
 
 Step 3: Click Run button at the upper right part of the screen to generate the calculation report and the number of rebar to be installed for top, bottom bars of A-end, B-end, and midspan of the beam
-![Step 3](./images/Concrete Beam-6.png)
+![Step 3](./images/concrete_beam-6.png)
 
 ## In S3D
 
 Step 1: Load the module in the S3D. Edit/modify the parameters for each beam section
-![S3D Step 1](./images/Concrete Beam-1.png)
+![S3D Step 1](./images/concrete_beam-1.png)
 
 Step 2: Load the module in the S3D. Edit/modify the parameters for each beam section
-![S3D Step 2](./images/Concrete Beam-2.png)
+![S3D Step 2](./images/concrete_beam-2.png)
 
 Step 3: Click the Report button to view individual calculation report 
-![S3D Step 3](./images/Concrete Beam-2.png)
+![S3D Step 3](./images/concrete_beam-2.png)
 
 
 ## References
