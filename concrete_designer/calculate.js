@@ -242,17 +242,26 @@ module.exports = function (input_json) {
     
             return As;
         }
+        calculateMaximumAreaOfReinforcementAsmax() {
+            return this.rho_max*this.b*this.d;
+        }
         generateFlexureReinforcements (momentAEndObj, momentMidObj, momentBendObj) {
+
+            let As_max = this.calculateMaximumAreaOfReinforcementAsmax()
+
             REPORT.block.addCalculation(`Calculating for the required no. of main reinforcement, the following assumptions were used:
             <ul>
                 <li>The RC beam is analyzed as a rectangular section;</li>
                 <li>The required [mathin] A_{s} [mathin] will be calculated with the assumption of 1 layer of rebars;</li>
                 <li>Compression reinforcement are neglected in the calculation;</li>
-                <li>A minimum of 2 rebars shall be provided;</li>
+                <li>A minimum of 2 rebars shall always be provided; and</li>
+                <li>Effect of slab is neglected.</li>
             </ul>
             Iterating values of [mathin] a [mathin] and solving for [mathin] A_{s} [mathin], then using the new value of [mathin] a [mathin] until it converges (20 iterations used). Initial value of [mathin] a = 50 [mathin]:
             [math] As = \\frac{M_{u}}{ \\phi f_{y} (d - a/2)} [math]
             [math] a_{new} = \\frac{A_{s} f_{y}}{ 0.85 f'_{c} b } [math]
+            Note: 
+            [math] A_{s,max} = \\rho b d = ${prettyPrint(As_max,3)} sq.in.[math]
             `);
 
             let momentObj = {
@@ -296,8 +305,8 @@ module.exports = function (input_json) {
 
             REPORT.block.addCalculation(`Calculating for the required spacing of shear reniforcement, the following assumptions were used:
             <ul>
-                <li>The spacing of stirrups was calculated using two (2) legs</li>
-                <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in.</li>
+                <li>The spacing of stirrups was calculated using two (2) legs;</li>
+                <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in.; and</li>
                 <li>Torsional effects not considered. </li>
             </ul>
             `);
