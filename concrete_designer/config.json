@@ -1,8 +1,8 @@
 {
 	"meta": {
-		"name": "ACI 318-19 Singly Reinforced Concrete Beam Designer",
-		"short_description": "ACI 318-19 Singly Reinforced Concrete Beam Designer",
-		"long_description": "Generate ACI 318-19 Singly Reinforced Concrete Beam design output that you can import to your favorite CAD software",
+		"name": "ACI 318-19 Reinforced Concrete Beam Designer",
+		"short_description": "ACI 318-19 Reinforced Concrete Beam Designer",
+		"long_description": "Generate ACI 318-19 Singly Reinforced Concrete Beam design output that you can use in S3D",
 		"tags": "rebar,concrete",
 		"access": "private",
 		"s3d_integrated": true,
@@ -266,7 +266,7 @@
 		},
 		"Vu_location": {
 			"label": "Location of V<sub>u</sub>",
-			"default": 100,
+			"default": 0,
 			"type": "number",
 			"units": "ft"
 		},
