@@ -23,11 +23,11 @@ module.exports = function (input_json) {
         var list = [];
         for (var n in object) {
             // dump the key values into a list
-            list.push(parseFloat(n))
+            list.push(parseFloat(n));
         }
         // Sort the list in ascending order
         list.sort(function (a, b) {
-            return a - b
+            return a - b;
         });
         
         for (var i = 0; i < list.length; i++) {
@@ -37,7 +37,7 @@ module.exports = function (input_json) {
                 before_num = current_num;
             } else if (current_num > number) {
                 after_num = current_num;
-                break
+                break;
             }
         }
         
@@ -75,15 +75,15 @@ module.exports = function (input_json) {
                 "#18": {"db": 2.257,"As": 4.00, "unit": "in"},
             };
 
-            this.db = rebars[rebarNo].db
-            this.As = rebars[rebarNo].As
+            this.db = rebars[rebarNo].db;
+            this.As = rebars[rebarNo].As;
         }
     }
 
     class Concrete {
         constructor(fc) {
-            this.fc = fc
-            this.beta1 = (fc >= 2500 && fc <= 4000) ? 0.85 : (fc >= 8000) ? 0.65 : interpolate([[4000,0.85],fc, [8000,0.65]])
+            this.fc = fc;
+            this.beta1 = (fc >= 2500 && fc <= 4000) ? 0.85 : (fc >= 8000) ? 0.65 : interpolate([[4000,0.85],fc, [8000,0.65]]);
         }
     }
 
@@ -92,28 +92,28 @@ module.exports = function (input_json) {
             this.b =  beamWidth;
             this.h =  beamDepth;
 
-            let concrete = new Concrete(concreteStrengthfc)
+            let concrete = new Concrete(concreteStrengthfc);
             this.fc =  concrete.fc;
             this.beta1 = concrete.beta1;
 
             this.fy =  mainReinfYieldfy;
             this.fyt =  transverseReinfYieldfyt;
  
-            let main_reinforcement = new Rebar(mainReinfDiaRebarNo)
-            let transverse_reinforcement = new Rebar(transvereReinfDiaRebarNo)
+            let main_reinforcement = new Rebar(mainReinfDiaRebarNo);
+            let transverse_reinforcement = new Rebar(transvereReinfDiaRebarNo);
             this.db =  main_reinforcement.db;
             this.ds =  transverse_reinforcement.db;
 
             this.mainBarNo = mainReinfDiaRebarNo;
             this.shearBarNo = mainReinfDiaRebarNo;
 
-            this.Ab = main_reinforcement.As
+            this.Ab = main_reinforcement.As;
 
             this.cc = concreteCoverCc;
             this.d_prime = this.cc + this.ds + this.db*0.5;
             this.d = this.h - this.d_prime;
 
-            this.rho_min = (this.fy == 40000) ? 0.005 : 0.0033
+            this.rho_min = (this.fy == 40000) ? 0.005 : 0.0033;
 
             this.ety = (this.fy/1000)/29000;
             this.ety_min = 0.003+this.ety;
@@ -123,7 +123,7 @@ module.exports = function (input_json) {
 
             this.Av = 2*transverse_reinforcement.As;
 
-            this.generateDetailedReport = (typeof generateDetailedReport == 'undefined') ? false : generateDetailedReport
+            this.generateDetailedReport = (typeof generateDetailedReport == 'undefined') ? false : generateDetailedReport;
 
             if (this.generateDetailedReport) {
                 let table_data = [
@@ -139,12 +139,13 @@ module.exports = function (input_json) {
                     ["[mathin] \\rho_{max} [mathin]", `${prettyPrint(this.rho_max, 4)}`],
                     ["[mathin] \\rho_{b} [mathin]", `${prettyPrint(this.rho_balanced, 4)}`],
                     ["[mathin] A_{v} [mathin]", `${prettyPrint(this.Av, 4)} sq.in.`],
-                ]
+                ];
+                
                 let options = {
                     heading: "Additional Parameters",
                     text_aligns: "center", //or just "center"
                     reference: ""
-                }
+                };
 
                 ReportHelpers.quickTable(table_data, options);
                 
@@ -158,10 +159,10 @@ module.exports = function (input_json) {
             no_of_rebar_required = Math.max(2, no_of_rebar_required);
 
             if (this.generateDetailedReport) {
-                REPORT.block.addCalculation(`For ${location}:`)
-                ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(12*1000),2)} kip-ft`)
-                ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.in.`)
-                ReportHelpers.lineResult(`Required no. of ${this.mainBarNo} rebars`, "n_{db}", no_of_rebar_required)
+                REPORT.block.addCalculation(`For ${location}:`);
+                ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(12*1000),2)} kip-ft`);
+                ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.in.`);
+                ReportHelpers.lineResult(`Required no. of ${this.mainBarNo} rebars`, "n_{db}", no_of_rebar_required);
             }
             return no_of_rebar_required;        }
         calculateShearCapacityOfConcreteVc() {
@@ -179,20 +180,21 @@ module.exports = function (input_json) {
             if (Vu < phi_shear*this_Vc*0.5) {
                 s = 0;
 
-                s = Math.min(this.d/2, 8,s);
+                s = Math.min(this.d/2, 24);
                 if (this.generateDetailedReport) {  
                     ReportHelpers.lineResult("Shear reinforcement not required.", "s", prettyPrint(s, 2) +' in.');
                 }
             } else if (Vu >= phi_shear*this_Vc*0.5 && Vu < phi_shear*this_Vc) {
                 s = Math.min((this.Av*this.fyt)/(phi_shear*Math.pow(fc,0.5)*this.b), (this.Av*this.fyt)/(50*this.b));
                 s = Math.min(this.d/2, 8, s);
-                if (this.generateDetailedReport) ReportHelpers.lineResult("Minimum reinforcement required", "s", prettyPrint(s, 2) +' in.');
+                if (this.generateDetailedReport) ReportHelpers.lineResult("Minimum reinforcement spacing required", "s", prettyPrint(s, 2) +' in.');
             } else {
                 let Vs = (Vu/phi_shear) - this_Vc;
                 s = (this.Av*this.fyt*this.d)/Vs;
-
-
-                if (this.generateDetailedReport) ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' in.');
+                if (this.generateDetailedReport) {
+                    ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs, 2) +' lbs');
+                    ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' in.');
+                } 
 
                 let s_max;
                 if (Vs <= 4*this.b*this.d*Math.pow(this.fc,0.5)) {
@@ -209,7 +211,7 @@ module.exports = function (input_json) {
    
             }
         
-            return s
+            return s;
         }
         calculateShearCapacity(spacing) {
             let phi_shear = 0.75;
@@ -220,7 +222,11 @@ module.exports = function (input_json) {
         }
         calculateMomentCapacityFromRebars(rebarNo, numberOfRebar) {
             let this_rebar = new Rebar(rebarNo);
-            this_rebar.As;
+            let As = this_rebar.As*numberOfRebar;
+            let a = (As*this.fy)/(0.85*this.fc*this.b);
+            let Mn = As*this.fy*(this.d - a*0.5);
+            let phiMn = Mn*this.phi_flexure;
+            return phiMn;
         }
         calculateAreaOfReinforcementAs(Mu) {
             let a = 20;
@@ -246,23 +252,44 @@ module.exports = function (input_json) {
             </ul>
             Iterating values of [mathin] a [mathin] and solving for [mathin] A_{s} [mathin], then using the new value of [mathin] a [mathin] until it converges (20 iterations used). Initial value of [mathin] a = 50 [mathin]:
             [math] As = \\frac{M_{u}}{ \\phi f_{y} (d - a/2)} [math]
-            [math] a_{new} = \\frac{A_{s} f_{y}}{ 0.85 \\beta_{1} f'_{c} b } [math]
-            `)
-                
-            return {
+            [math] a_{new} = \\frac{A_{s} f_{y}}{ 0.85 f'_{c} b } [math]
+            `);
+
+            let momentObj = {
+                "A_end": momentAEndObj,
+                "B_end": momentBendObj,
+                "mid": momentMidObj
+            };
+
+            let result = {
                 "A_end": {
-                    "top": this.calculateFlexureReinforcement(momentAEndObj.top, 'A-end Top'), 
-                    "bottom": this.calculateFlexureReinforcement(momentAEndObj.bottom, 'A-end Top')
+                    "top": this.calculateFlexureReinforcement(momentObj['A_end'].top, 'A-end Top'),
+                    "bottom": this.calculateFlexureReinforcement(momentObj['A_end'].bottom, 'A-end Top'),
                 },
                 "B_end": {
-                    "top": this.calculateFlexureReinforcement(momentBendObj.top, 'B-end Top'), 
-                    "bottom": this.calculateFlexureReinforcement(momentBendObj.bottom, 'B-end Top')
+                    "top": this.calculateFlexureReinforcement(momentObj['B_end'].top, 'B-end Top'), 
+                    "bottom": this.calculateFlexureReinforcement(momentObj['B_end'].bottom, 'B-end Top')
                 },
                 "mid": {
-                    "top": this.calculateFlexureReinforcement(momentMidObj.top, 'Midspan Top'), 
-                    "bottom": this.calculateFlexureReinforcement(momentMidObj.bottom, 'Midspan Top')
+                    "top": this.calculateFlexureReinforcement(momentObj['mid'].top, 'Midspan Top'), 
+                    "bottom": this.calculateFlexureReinforcement(momentObj['mid'].bottom, 'Midspan Top')
                 }
             };
+
+            for (let loc in result) {
+                let this_loc = result[loc];
+                let capacity_top = this.calculateMomentCapacityFromRebars(this.mainBarNo, this_loc.top)
+                let capacity_bottom= this.calculateMomentCapacityFromRebars(this.mainBarNo, this_loc.bottom)
+                let UR_top = momentObj[loc].top/capacity_top
+                let UR_bottom = momentObj[loc].bottom/capacity_bottom
+
+                result[loc].capacity_top = capacity_top
+                result[loc].capacity_bottom = capacity_bottom
+                result[loc].UR_top = UR_top
+                result[loc].UR_bottom = UR_bottom
+            }
+                
+            return result;
         }
         generateShearReinforcementSpacing(shearAbsForcesArr) {
             // [location, Vu]
@@ -270,21 +297,21 @@ module.exports = function (input_json) {
             REPORT.block.addCalculation(`Calculating for the required spacing of shear reniforcement, the following assumptions were used:
             <ul>
                 <li>The spacing of stirrups was calculated using two (2) legs</li>
-                <li>The maximum spacing, regardless if stirrups are required or not, will be maximum of [mathin]d/2[mathin] or 8 in.</li>
+                <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in.</li>
                 <li>Torsional effects not considered. </li>
             </ul>
-            `)
+            `);
 
-            this.Vc = this.calculateShearCapacityOfConcreteVc()
+            this.Vc = this.calculateShearCapacityOfConcreteVc();
 
             let result = shearAbsForcesArr.map(arr => {
                 let Vu = arr[1];
                 let location = arr[0];
                 let spacing_ = this.calculateShearReinforcementSpacing(Vu);
                 return spacing_;
-            })
+            });
 
-            return result
+            return result;
         }
     }
 
@@ -303,7 +330,7 @@ module.exports = function (input_json) {
     REPORT.block.finish();
   
     var beam1 = new Beam(b,h,fc,fy,fyt,db,ds,C_c, true);
-    REPORT.block.new(`Flexure Reinforcements:`, 2)
+    REPORT.block.new(`Flexure Reinforcements:`, 2);
     let reinforcements = beam1.generateFlexureReinforcements(
         {top: Mu_topA, bottom: Mu_botA}, 
         {top: Mu_top_mid, bottom: Mu_bot_mid}, 
@@ -311,7 +338,7 @@ module.exports = function (input_json) {
     );
     REPORT.block.finish();
 
-    REPORT.block.new(`Shear Reinforcements:`, 2)
+    REPORT.block.new(`Shear Reinforcements:`, 2);
     let min_stirrup_spacing_arr = beam1.generateShearReinforcementSpacing([
         [Vu_location, Vu]
     ]);
@@ -363,6 +390,7 @@ module.exports = function (input_json) {
     };
 
     return output;
+
 
   };
   

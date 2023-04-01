@@ -84,9 +84,9 @@ module.exports = function(s3d_model, analysis_results) {
         let processedVz = VzArrAbsMax.map(val => {
             let res = (typeof val == 'object') ? val[1] : val;
             return res;
-        })
-        processedVz = processedVz.map(val => Math.abs(val))
-        processedVz = Math.max(...processedVz)
+        });
+        processedVz = processedVz.map(val => Math.abs(val));
+        processedVz = Math.max(...processedVz);
         return processedVz;
     }
 
@@ -129,7 +129,7 @@ module.exports = function(s3d_model, analysis_results) {
             this_Vy_abs =  getDesignShearsVu(this_Vy_abs);
             this_Tu_abs =  getDesignShearsVu(this_Tu_abs);
             this_member_input.Vu = Math.round(this_Vy_abs*100)/100; 
-            this_member_input.Vu_location = 0
+            this_member_input.Vu_location = 0;
 
             design_members.push(this_member_input);
         } 
@@ -142,4 +142,4 @@ module.exports = function(s3d_model, analysis_results) {
 
     return design_members;
 
-}
+};
