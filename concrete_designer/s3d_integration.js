@@ -27,6 +27,9 @@ module.exports = function(s3d_model, analysis_results) {
     let envelope_abs_Vy = null;
     let envelope_abs_Tu = null;
 
+    let member_stations = null;
+    let member_lengths = null;
+    
     for (let i = 0; i < analysis_results.length; i++ ) {
         let obj = analysis_results[i];
         if (obj && obj.type == 'envelope' && (obj.name == 'Envelope Min' || obj.name == 'Envelope+Min')) envelope_min_Mz = obj.bmd_z;
@@ -34,6 +37,8 @@ module.exports = function(s3d_model, analysis_results) {
         if (obj && obj.type == 'envelope' && (obj.name == 'Envelope Absolute Max' || obj.name == 'Envelope+Absolute+Max')) {
             envelope_abs_Tu = obj.torsion;
             envelope_abs_Vy = obj.sfd_y;
+            member_stations = obj.member_stations;
+            member_lengths = obj.member_lengths;
         } 
     }
     
@@ -85,8 +90,7 @@ module.exports = function(s3d_model, analysis_results) {
             let res = (typeof val == 'object') ? val[1] : val;
             return res;
         });
-        processedVz = processedVz.map(val => Math.abs(val));
-        processedVz = Math.max(...processedVz);
+        processedVz = processedVz.map(val => Math.round(Math.abs(val)*100)/100);
         return processedVz;
     }
 
@@ -98,6 +102,12 @@ module.exports = function(s3d_model, analysis_results) {
             if (!this_member) continue;
 
             this_member_input.beam_mark = beamID;
+
+        
+            let this_member_length = member_lengths[id];
+            let this_member_stations = member_stations[id];
+            let locations_arr = this_member_stations.map(val => val*0.001*this_member_length)
+            
 
             // ENVELOPE MOMENTS
             let this_Mz_min = envelope_min_Mz[beamID];
@@ -128,8 +138,8 @@ module.exports = function(s3d_model, analysis_results) {
             let this_Tu_abs = envelope_abs_Tu[beamID];
             this_Vy_abs =  getDesignShearsVu(this_Vy_abs);
             this_Tu_abs =  getDesignShearsVu(this_Tu_abs);
-            this_member_input.Vu = Math.round(this_Vy_abs*100)/100; 
-            this_member_input.Vu_location = 0;
+            this_member_input.Vu = this_Vy_abs; 
+            this_member_input.Vu_location = locations_arr;
 
             design_members.push(this_member_input);
         } 

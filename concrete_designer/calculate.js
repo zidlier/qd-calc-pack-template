@@ -14,37 +14,38 @@ module.exports = function (input_json) {
       return res;
     };
 
-    function interpolate([[x1,y1], x2, [x3,y3]]) {
-        return (((x2 - x1) * (y3 - y1)) / (x3 - x1)) + y1;    
+    function parseArray(value) {
+        let value_temp = value;
+
+        if (typeof value_temp != 'number') {
+            let value_temp_arr = value_temp.split(",")
+            value_temp_arr = value_temp_arr.map(v => parseFloat(v))
+            value_temp = (value_temp_arr.length == 1) ? value_temp : value_temp_arr
+        }
+        
+        return value_temp
     }
 
-    function topBottomSearch(number, object) {
+    function convertVuVu_location (VuArr, VuLocationArr) {
+        let final_Vu_arr = []
 
-        var list = [];
-        for (var n in object) {
-            // dump the key values into a list
-            list.push(parseFloat(n));
-        }
-        // Sort the list in ascending order
-        list.sort(function (a, b) {
-            return a - b;
-        });
-        
-        for (var i = 0; i < list.length; i++) {
-            // loop until number is found
-            var current_num = list[i];
-            if (current_num < number) {
-                before_num = current_num;
-            } else if (current_num > number) {
-                after_num = current_num;
-                break;
+        VuArr = parseArray(VuArr);
+        VuLocationArr = parseArray(VuLocationArr);
+
+        if (typeof VuArr == 'object') {
+            for (let i =0; i < VuArr.length; i++) {
+                final_Vu_arr.push([VuLocationArr[i], VuArr[i]])
             }
+        } else {
+            final_Vu_arr.push([Vu_location, Vu])
         }
+
+        return final_Vu_arr
         
-        return {
-            "after": after_num,
-            "before": before_num
-        };
+    }
+
+    function interpolate([[x1,y1], x2, [x3,y3]]) {
+        return (((x2 - x1) * (y3 - y1)) / (x3 - x1)) + y1;    
     }
 
     class Rebar {
@@ -130,8 +131,8 @@ module.exports = function (input_json) {
                     ["Parameter", "Value"],
                     ["[mathin] d' [mathin]", `${this.d_prime} in.`],
                     ["[mathin] d [mathin]", `${this.d} in.`],
-                    ["[mathin] \\phi{flexure} [mathin]", 0.9],
-                    ["[mathin] \\phi{shear} [mathin]", 0.75],
+                    ["[mathin] \\phi_{flexure} [mathin]", 0.9],
+                    ["[mathin] \\phi_{shear} [mathin]", 0.75],
                     ["[mathin] \\beta_{1} [mathin]", prettyPrint(this.beta1,3)],
                     ["[mathin] \\epsilon_{ty} [mathin]", `${prettyPrint(this.ety,4)}`],
                     ["[mathin] \\epsilon_{ty,min} [mathin]", `${prettyPrint(this.ety_min, 4)}`],
@@ -165,7 +166,7 @@ module.exports = function (input_json) {
         }
         calculateShearCapacityOfConcreteVc() {
             let Vc = 2*this.b*this.d*Math.pow(this.fc,0.5);
-            if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc, 2) +' lbs');
+            if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc/1000, 2) +' kips');
             return Vc; //in lb
         }
         calculateShearReinforcementSpacing(Vu) {
@@ -190,7 +191,7 @@ module.exports = function (input_json) {
                 let Vs = (Vu/phi_shear) - this_Vc;
                 s = (this.Av*this.fyt*this.d)/Vs;
                 if (this.generateDetailedReport) {
-                    ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs, 2) +' lbs');
+                    ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs/1000, 2) +' kips');
                     ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' in.');
                 } 
 
@@ -328,7 +329,7 @@ module.exports = function (input_json) {
             <ul>
                 <li>The spacing of stirrups was calculated using two (2) legs;</li>
                 <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in.; and</li>
-                <li>Torsional effects not considered. </li>
+                <li>Torsional effects are not considered. </li>
             </ul>
             `);
 
@@ -337,6 +338,7 @@ module.exports = function (input_json) {
             let result = shearAbsForcesArr.map(arr => {
                 let Vu = arr[1];
                 let location = arr[0];
+                if (this.generateDetailedReport) REPORT.block.addCalculation(`For ${prettyPrint(location)} ft from A-end support:`)
                 let spacing_ = this.calculateShearReinforcementSpacing(Vu);
                 return spacing_;
             });
@@ -369,9 +371,10 @@ module.exports = function (input_json) {
     REPORT.block.finish();
 
     REPORT.block.new(`Shear Reinforcements:`, 2);
-    let min_stirrup_spacing_arr = beam1.generateShearReinforcementSpacing([
-        [Vu_location, Vu]
-    ]);
+
+    let final_Vu_arr = convertVuVu_location(Vu,Vu_location)
+
+    let min_stirrup_spacing_arr = beam1.generateShearReinforcementSpacing(final_Vu_arr);
     REPORT.block.finish();
 
     REPORT.section.break();  

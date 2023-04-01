@@ -10,12 +10,12 @@
 		"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png",
 		"developer": "patrick@skyciv.com",
 		"contact": {
-            "name": "Patrick Aylsworth Garcia. MSCE",
-            "role": "Product Manager",
-            "email": "patrick@skyciv.com",
-            "company": "SkyCiv",
-            "logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png"
-        }
+			"name": "Patrick Aylsworth Garcia. MSCE",
+			"role": "Product Manager",
+			"email": "patrick@skyciv.com",
+			"company": "SkyCiv",
+			"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png"
+		}
 	},
 	"input_variables": {
 		"beam_mark": {
@@ -51,7 +51,7 @@
 				}
 			]
 		},
-        "fyt": {
+		"fyt": {
 			"type": "dropdown",
 			"label": "Transverse Reinforcement f<sub>yt</sub>",
 			"default": "40000",
@@ -120,7 +120,7 @@
 			"min": 8,
 			"max": 50
 		},
-        "h": {
+		"h": {
 			"label": "Beam Depth, h",
 			"default": 20,
 			"type": "number",
@@ -128,7 +128,7 @@
 			"min": 8,
 			"max": 100
 		},
-        "sub_heading_3": {
+		"sub_heading_3": {
 			"type": "heading",
 			"label": "Reinforcements"
 		},
@@ -175,7 +175,7 @@
 				}
 			]
 		},
-        "ds": {
+		"ds": {
 			"type": "dropdown",
 			"label": "Transverse Reinforcement d<sub>s</sub>",
 			"default": "#3",
@@ -266,21 +266,21 @@
 			"units": "kip-ft",
 			"info": "For top reinforcement"
 		},
-		
 		"sub_heading_5": {
 			"type": "heading",
 			"label": "Design Shear Forces"
 		},
 		"Vu_location": {
 			"label": "Location of V<sub>u</sub>",
-			"default": 1,
-			"type": "number",
-			"units": "ft"
+			"default": "0",
+			"type": "text",
+			"units": "ft",
+			"info": "Distance from support. (can be a single value or an array)"
 		},
 		"Vu": {
 			"label": "V<sub>u</sub>",
-			"default": 100,
-			"type": "number",
+			"default": "100",
+			"type": "text",
 			"units": "kip"
 		}
 	}
