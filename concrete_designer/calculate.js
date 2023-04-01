@@ -155,16 +155,14 @@ module.exports = function (input_json) {
             // designMomentMu in kip-ft 
             designMomentMu = Math.abs(designMomentMu*12*1000); // convert to lb-in
             let As = this.calculateAreaOfReinforcementAs(designMomentMu);
-            let no_of_rebar_required = Math.ceil(As/this.Ab);
-            no_of_rebar_required = Math.max(2, no_of_rebar_required);
 
             if (this.generateDetailedReport) {
                 REPORT.block.addCalculation(`For ${location}:`);
                 ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(12*1000),2)} kip-ft`);
                 ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.in.`);
-                ReportHelpers.lineResult(`Required no. of ${this.mainBarNo} rebars`, "n_{db}", no_of_rebar_required);
             }
-            return no_of_rebar_required;        }
+            return As;        
+        }
         calculateShearCapacityOfConcreteVc() {
             let Vc = 2*this.b*this.d*Math.pow(this.fc,0.5);
             if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc, 2) +' lbs');
@@ -252,10 +250,10 @@ module.exports = function (input_json) {
             REPORT.block.addCalculation(`Calculating for the required no. of main reinforcement, the following assumptions were used:
             <ul>
                 <li>The RC beam is analyzed as a rectangular section;</li>
-                <li>The required [mathin] A_{s} [mathin] will be calculated with the assumption of 1 layer of rebars;</li>
+                <li>The required [mathin] A_{s} [mathin] is calculated with the assumption of 1 layer of rebars;</li>
                 <li>Compression reinforcement are neglected in the calculation;</li>
-                <li>A minimum of 2 rebars shall always be provided; and</li>
-                <li>Effect of slab is neglected.</li>
+                <li>A minimum of 2 rebars or 1/2 of the corresponding opposite side of each location shall always be provided, whichever is larger; and</li>
+                <li>The effect of slab in the compression zone is neglected.</li>
             </ul>
             Iterating values of [mathin] a [mathin] and solving for [mathin] A_{s} [mathin], then using the new value of [mathin] a [mathin] until it converges (20 iterations used). Initial value of [mathin] a = 50 [mathin]:
             [math] As = \\frac{M_{u}}{ \\phi f_{y} (d - a/2)} [math]
@@ -270,7 +268,7 @@ module.exports = function (input_json) {
                 "mid": momentMidObj
             };
 
-            let result = {
+            let As_result = {
                 "A_end": {
                     "top": this.calculateFlexureReinforcement(momentObj['A_end'].top, 'A-end Top'),
                     "bottom": this.calculateFlexureReinforcement(momentObj['A_end'].bottom, 'A-end Top'),
@@ -284,7 +282,30 @@ module.exports = function (input_json) {
                     "bottom": this.calculateFlexureReinforcement(momentObj['mid'].bottom, 'Midspan Top')
                 }
             };
+            
+            let result = {};
 
+            for (let loc in As_result) {
+
+                let top_As = As_result[loc].top;
+                let bot_As = As_result[loc].bottom;
+
+                if (top_As > bot_As) {
+                    let smaller_As = (bot_As < top_As*0.5) ? top_As*0.5 : bot_As
+                    result[loc] = {
+                        'top': Math.max(2, Math.ceil(top_As/this.Ab)), 
+                        'bottom': Math.max(2, Math.ceil(smaller_As/this.Ab))
+                    };
+                } else {
+                    let smaller_As = (top_As < bot_As*0.5) ? bot_As*0.5 : top_As
+                    result[loc] = {
+                        'bottom': Math.max(2, Math.ceil(bot_As/this.Ab)), 
+                        'top': Math.max(2, Math.ceil(smaller_As/this.Ab))
+                    };
+                }
+                
+            }
+            
             for (let loc in result) {
                 let this_loc = result[loc];
                 let capacity_top = this.calculateMomentCapacityFromRebars(this.mainBarNo, this_loc.top)
