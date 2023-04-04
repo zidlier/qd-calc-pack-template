@@ -6,7 +6,7 @@ Calculate the required flexural and shear reinforcement for a rectangular beam a
 ### Flexure Reinforcements:
 Calculating for the required no. of main reinforcement, the following assumptions were used:
 - The RC beam is analyzed as a rectangular section;
-- The required flexure reinforcment `As` is calculated with the assumption of 1 layer of rebars;
+- The required flexure reinforcement `As` is calculated with the assumption of 1 layer of rebars;
 - Compression reinforcement are neglected in the calculation;
 - A minimum of 2 rebars or 1/2 of the corresponding opposite side of each location shall always be provided, whichever is larger; and
 - The effect of slab in the compression zone is neglected.

@@ -141,7 +141,7 @@ module.exports = function(s3d_model, analysis_results) {
             this_member_input.Vu = this_Vy_abs; 
             this_member_input.Vu_location = locations_arr;
 
-            design_members.push(this_member_input);
+            design_members[id] = (this_member_input);
         } 
     }
 
