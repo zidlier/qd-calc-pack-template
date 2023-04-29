@@ -22,6 +22,24 @@ module.exports = function(s3d_model, analysis_results) {
         "Mu_botB": 100
     };
 
+    default_input = {
+        "beam_mark": "1",
+        "fy": "275",
+        "fyt": "233",
+        "fc": "21",
+        "b": 200,
+        "h": 400,
+        "db": "16",
+        "ds": "10",
+        "C_c": 40,
+        "Mu_topA": 100,
+        "Mu_botA": 100,
+        "Mu_top_mid": 100,
+        "Mu_bot_mid": 100,
+        "Mu_topB": 100,
+        "Mu_botB": 100
+    };
+
     let envelope_min_Mz = null;
     let envelope_max_Mz = null;
     let envelope_abs_Vy = null;
@@ -52,6 +70,8 @@ module.exports = function(s3d_model, analysis_results) {
     
 
     let columns_arr = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38];
+
+    columns_arr = [9,10,11,13,16,17,18,19,20,21,22,24,33,34,35,37,40,41,42,43,44,45,46,48]
 
     var members = s3d_model.elements;
 
@@ -130,8 +150,8 @@ module.exports = function(s3d_model, analysis_results) {
             // GET SECTION DIMENSIONS
             let section_id = this_member[2];
             let section_obj = s3d_model.sections[section_id];
-            if (section_obj.aux.depth) this_member_input.d = UnitHelpers.convert(section_obj.aux.depth, s3d_units.section_length, "in");
-            if (section_obj.aux.width) this_member_input.b = UnitHelpers.convert(section_obj.aux.width, s3d_units.section_length, "in");
+            if (section_obj.aux.depth) this_member_input.d = UnitHelpers.convert(section_obj.aux.depth, s3d_units.section_length, "mm");
+            if (section_obj.aux.width) this_member_input.b = UnitHelpers.convert(section_obj.aux.width, s3d_units.section_length, "mm");
 
             // CALCULATE SHEAR REINFORCEMENTS
             let this_Vy_abs = envelope_abs_Vy[beamID];

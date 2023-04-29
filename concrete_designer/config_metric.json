@@ -1,0 +1,223 @@
+{
+	"meta": {
+		"name": "ACI 318-19 Reinforced Concrete Beam Designer",
+		"short_description": "ACI 318-19 Reinforced Concrete Beam Designer",
+		"long_description": "Generate ACI 318-19 Singly Reinforced Concrete Beam design output that you can use in S3D",
+		"tags": "rebar,concrete",
+		"access": "private",
+		"s3d_integrated": true,
+		"category": "concrete",
+		"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png",
+		"developer": "patrick@skyciv.com",
+		"contact": {
+			"name": "Patrick Aylsworth Garcia. MSCE",
+			"role": "Product Manager",
+			"email": "patrick@skyciv.com",
+			"company": "SkyCiv",
+			"logo": "https://skyciv.com/media/logos/logo-pack/SkyCiv_Logo_Dark_Poweredby.png"
+		}
+	},
+	"input_variables": {
+		"beam_mark": {
+			"label": "Beam Mark/ID",
+			"default": "1",
+			"type": "text"
+		},
+		"sub_heading_1": {
+			"type": "heading",
+			"label": "Material Strength"
+		},
+		"fy": {
+			"type": "dropdown",
+			"label": "Main Reinforcement f<sub>y</sub>",
+			"default": "275",
+			"units": "MPa",
+			"options": [
+				{
+					"value": "275",
+					"name": "275 MPa (Grade 40)"
+				},
+				{
+					"value": "415",
+					"name": "415 MPa (Grade 60)"
+				}
+			]
+		},
+		"fyt": {
+			"type": "dropdown",
+			"label": "Transverse Reinforcement f<sub>yt</sub>",
+			"default": "233",
+			"units": "MPa",
+			"options": [
+				{
+					"value": "233",
+					"name": "233 MPa (Grade 33)"
+				},
+                {
+					"value": "275",
+					"name": "275 MPa (Grade 40)"
+				}
+			]
+		},
+		"fc": {
+			"info": "Concrete strength, f'<sub>c</sub>",
+			"type": "dropdown",
+			"label": "f'<sub>c</sub>",
+			"default": "21",
+			"units": "MPa",
+			"options": [
+				{
+					"value": "21",
+					"name": "21 MPa (3000)"
+				},
+				{
+					"value": "28",
+					"name": "28 MPa (3000)"
+				}
+			]
+		},
+		"sub_heading_2": {
+			"type": "heading",
+			"label": "Beam Dimensions"
+		},
+		"b": {
+			"label": "Beam Width, b",
+			"default": 200,
+			"type": "number",
+			"units": "mm",
+			"min": 200,
+			"max": 500
+		},
+		"h": {
+			"label": "Beam Depth, h",
+			"default": 400,
+			"type": "number",
+			"units": "mm",
+			"min": 200,
+			"max": 500
+		},
+		"sub_heading_3": {
+			"type": "heading",
+			"label": "Reinforcements"
+		},
+		"db": {
+			"type": "dropdown",
+			"label": "Main Reinforcement d<sub>b</sub>",
+			"default": "16",
+			"options": [
+                {
+					"value": "10",
+					"name": "10mm"
+				},
+				{
+					"value": "12",
+					"name": "12mm"
+				},
+				{
+					"value": "16",
+					"name": "16mm"
+				},
+				{
+					"value": "20",
+					"name": "20mm"
+				},
+                {
+					"value": "25",
+					"name": "25mm"
+				}
+			]
+		},
+		"ds": {
+			"type": "dropdown",
+			"label": "Transverse Reinforcement d<sub>s</sub>",
+			"default": "10",
+			"options": [
+                {
+					"value": "10",
+					"name": "10mm"
+				},
+				{
+					"value": "12",
+					"name": "12mm"
+				}
+			]
+		},
+		"C_c": {
+			"label": "Concrete cover, C<sub>c</sub>",
+			"default": 40,
+			"type": "number",
+			"units": "mm",
+			"min": 25,
+			"max": 75
+		},
+		"sub_heading_4": {
+			"type": "heading",
+			"label": "Design Moment"
+		},
+		"image": {
+			"type": "image",
+			"width": "100%%",
+			"src": "data:image/png;base64,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OWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDozMTk2M2RhNi1mYWVmLTRkNDItOTAzNy1mYzhhYzBhNGIyZDgiCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6YmI2ZTNkNWItNjkxYi00NjE1LTk5ZTAtNDdhM2VkNDgzMjc3IgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6N2M2OTc3YmYtMjRlYy00OGNlLTkwMjgtM2JmNjY5MWViYTY3IgogICBkYzpGb3JtYXQ9ImltYWdlL3BuZyIKICAgR0lNUDpBUEk9IjIuMCIKICAgR0lNUDpQbGF0Zm9ybT0iTGludXgiCiAgIEdJTVA6VGltZVN0YW1wPSIxNjgwMTk0MDQ0MDU4OTU1IgogICBHSU1QOlZlcnNpb249IjIuMTAuMzAiCiAgIHRpZmY6T3JpZW50YXRpb249IjEiCiAgIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiCiAgICAgIHN0RXZ0OmNoYW5nZWQ9Ii8iCiAgICAgIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6NTRjNzJiOTgtNzI2NS00NDk1LWJhYTItZWI2ZTljNTkxMjUxIgogICAgICBzdEV2dDpzb2Z0d2FyZUFnZW50PSJHaW1wIDIuMTAgKExpbnV4KSIKICAgICAgc3RFdnQ6d2hlbj0iMjAyMy0wMy0zMVQwMDozNDowNCswODowMCIvPgogICAgPC9yZGY6U2VxPgogICA8L3htcE1NOkhpc3Rvcnk+CiAgPC9yZGY6RGVzY3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9InciPz5MaR3zAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5wMeECIEjAr6rwAACfNJREFUeNrt3XtslfUdx/F3WxQrIOCqwKBWAqzTOjagqJFNlBlxDBkw04YQLkO6OeQSApMhU6dpTAkLsgBuTp0brLFjwRsBWWSgCxJlGyJIy9UL1wq1rUhbqL3sj+dXPGA1ggdom/crOTmH53ZOn+f5ffr7PQ+nX5AkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZJ0lpKSksqB+ng/kpKSyty7sn20jPaR0IyPYf2OHTvivtH09PTmvl8k20eQ6HkgqaUy4CQZcJJkwEmSASdJBpwkGXCSZMBJMuAkyYCTJANOkgw4STLgJMmAk2TA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",
+			"info": "Beam layout"
+		},
+		"Mu_botA": {
+			"label": "A-end +M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For bottom reinforcement"
+		},
+		"Mu_topA": {
+			"label": "A-end -M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For top reinforcement"
+		},
+		"Mu_bot_mid": {
+			"label": "Midspan +M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For bottom reinforcement"
+		},
+		"Mu_top_mid": {
+			"label": "Midspan -M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For top reinforcement"
+		},
+		"Mu_botB": {
+			"label": "B-end +M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For bottom reinforcement"
+		},
+		"Mu_topB": {
+			"label": "B-end -M<sub>u</sub>",
+			"default": 100,
+			"type": "number",
+			"units": "kN-m",
+			"info": "For top reinforcement"
+		},
+		"sub_heading_5": {
+			"type": "heading",
+			"label": "Design Shear Forces"
+		},
+		"Vu_location": {
+			"label": "Location of V<sub>u</sub>",
+			"default": "0",
+			"type": "text",
+			"units": "m",
+			"info": "Distance from support. (can be a single value or an array)"
+		},
+		"Vu": {
+			"label": "V<sub>u</sub>",
+			"default": "100",
+			"type": "text",
+			"units": "kN"
+		}
+	}
+}

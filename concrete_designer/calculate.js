@@ -1,5 +1,7 @@
 module.exports = function (input_json) {
 
+    const unit_system = 'metric';
+
     let {beam_mark, fy, fc, fyt, b, h, db ,ds, C_c} = input_json;
 
     // Loads
@@ -50,48 +52,59 @@ module.exports = function (input_json) {
 
     class Rebar {
         constructor(rebarNo){ 
-            let rebars = {
-                "3": {"db": 0.375,"As": 0.11, "unit": "in"},
-                "4": {"db": 0.5,"As": 0.20, "unit": "in"},
-                "5": {"db": 0.625,"As": 0.31, "unit": "in"},
-                "6": {"db": 0.75,"As": 0.44, "unit": "in"},
-                "7": {"db": 0.875,"As": 0.6, "unit": "in"},
-                "8": {"db": 1,"As": 0.79, "unit": "in"},
-                "9": {"db": 1.128,"As": 1, "unit": "in"},
-                "10": {"db": 1.27,"As": 1.27, "unit": "in"},
-                "11": {"db": 1.41,"As": 1.56, "unit": "in"},
-                "14": {"db": 1.693,"As": 2.25, "unit": "in"},
-                "18": {"db": 2.257,"As": 4.00, "unit": "in"},
-
-                "#3": {"db": 0.375,"As": 0.11, "unit": "in"},
-                "#4": {"db": 0.5,"As": 0.20, "unit": "in"},
-                "#5": {"db": 0.625,"As": 0.31, "unit": "in"},
-                "#6": {"db": 0.75,"As": 0.44, "unit": "in"},
-                "#7": {"db": 0.875,"As": 0.6, "unit": "in"},
-                "#8": {"db": 1,"As": 0.79, "unit": "in"},
-                "#9": {"db": 1.128,"As": 1, "unit": "in"},
-                "#10": {"db": 1.27,"As": 1.27, "unit": "in"},
-                "#11": {"db": 1.41,"As": 1.56, "unit": "in"},
-                "#14": {"db": 1.693,"As": 2.25, "unit": "in"},
-                "#18": {"db": 2.257,"As": 4.00, "unit": "in"},
-            };
-
-            this.db = rebars[rebarNo].db;
-            this.As = rebars[rebarNo].As;
+           
+            if (unit_system == 'metric') {
+                this.db = parseFloat(rebarNo);
+                this.As = Math.PI*0.25*this.db*this.db;
+            } else {
+                let rebars = {
+                    "3": {"db": 0.375,"As": 0.11, "unit": "in"},
+                    "4": {"db": 0.5,"As": 0.20, "unit": "in"},
+                    "5": {"db": 0.625,"As": 0.31, "unit": "in"},
+                    "6": {"db": 0.75,"As": 0.44, "unit": "in"},
+                    "7": {"db": 0.875,"As": 0.6, "unit": "in"},
+                    "8": {"db": 1,"As": 0.79, "unit": "in"},
+                    "9": {"db": 1.128,"As": 1, "unit": "in"},
+                    "10": {"db": 1.27,"As": 1.27, "unit": "in"},
+                    "11": {"db": 1.41,"As": 1.56, "unit": "in"},
+                    "14": {"db": 1.693,"As": 2.25, "unit": "in"},
+                    "18": {"db": 2.257,"As": 4.00, "unit": "in"},
+    
+                    "#3": {"db": 0.375,"As": 0.11, "unit": "in"},
+                    "#4": {"db": 0.5,"As": 0.20, "unit": "in"},
+                    "#5": {"db": 0.625,"As": 0.31, "unit": "in"},
+                    "#6": {"db": 0.75,"As": 0.44, "unit": "in"},
+                    "#7": {"db": 0.875,"As": 0.6, "unit": "in"},
+                    "#8": {"db": 1,"As": 0.79, "unit": "in"},
+                    "#9": {"db": 1.128,"As": 1, "unit": "in"},
+                    "#10": {"db": 1.27,"As": 1.27, "unit": "in"},
+                    "#11": {"db": 1.41,"As": 1.56, "unit": "in"},
+                    "#14": {"db": 1.693,"As": 2.25, "unit": "in"},
+                    "#18": {"db": 2.257,"As": 4.00, "unit": "in"},
+                };
+    
+                this.db = rebars[rebarNo].db;
+                this.As = rebars[rebarNo].As;    
+            }
         }
     }
 
     class Concrete {
         constructor(fc) {
             this.fc = fc;
-            this.beta1 = (fc >= 2500 && fc <= 4000) ? 0.85 : (fc >= 8000) ? 0.65 : interpolate([[4000,0.85],fc, [8000,0.65]]);
+            
+            if (unit_system == 'metric') {
+                this.beta1 = (fc >= 17 && fc <= 28) ? 0.85 : (fc >= 55) ? 0.65 : interpolate([[28,0.85],fc, [55,0.65]]);
+            } else {
+                this.beta1 = (fc >= 2500 && fc <= 4000) ? 0.85 : (fc >= 8000) ? 0.65 : interpolate([[4000,0.85],fc, [8000,0.65]]);
+            }
         }
     }
 
     class Beam {
         constructor (beamWidth, beamDepth, concreteStrengthfc, mainReinfYieldfy,  transverseReinfYieldfyt, mainReinfDiaRebarNo, transvereReinfDiaRebarNo, concreteCoverCc, generateDetailedReport) {
-            this.b =  beamWidth;
-            this.h =  beamDepth;
+            this.b =  parseFloat(beamWidth);
+            this.h =  parseFloat(beamDepth);
 
             let concrete = new Concrete(concreteStrengthfc);
             this.fc =  concrete.fc;
@@ -102,35 +115,55 @@ module.exports = function (input_json) {
  
             let main_reinforcement = new Rebar(mainReinfDiaRebarNo);
             let transverse_reinforcement = new Rebar(transvereReinfDiaRebarNo);
-            this.db =  main_reinforcement.db;
-            this.ds =  transverse_reinforcement.db;
+            this.db =  parseFloat(main_reinforcement.db);
+            this.ds =  parseFloat(transverse_reinforcement.db);
 
             this.mainBarNo = mainReinfDiaRebarNo;
             this.shearBarNo = mainReinfDiaRebarNo;
 
             this.Ab = main_reinforcement.As;
 
-            this.cc = concreteCoverCc;
+            this.cc = parseFloat(concreteCoverCc);
             this.d_prime = this.cc + this.ds + this.db*0.5;
             this.d = this.h - this.d_prime;
 
-            this.rho_min = (this.fy == 40000) ? 0.005 : 0.0033;
 
-            this.ety = (this.fy/1000)/29000;
-            this.ety_min = 0.003+this.ety;
-            this.rho_max = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety_min));
-            this.rho_balanced = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety));
-            this.rho_min = Math.max((3*Math.pow(this.fc,0.5))/this.fy, 200/this.fy);
+            logger('cc : '+ this.cc)
+            logger('ds : '+ this.ds)
+            logger('db : '+ this.db)
+            logger('d_prime : '+ this.d_prime)
+            logger('d : '+ this.d)
+            logger('h : '+ this.h)
+
+            if (unit_system == 'metric') {
+                this.rho_min = (this.fy == 275) ? 0.005 : 0.0033;
+
+                this.ety = (this.fy)/200000;
+                this.ety_min = 0.003+this.ety;
+                this.rho_max = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety_min));
+                this.rho_balanced = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety));
+                this.rho_min = Math.max((0.25*Math.pow(this.fc,0.5))/this.fy, 1.4/this.fy);
+            } else {
+                this.rho_min = (this.fy == 40000) ? 0.005 : 0.0033;
+
+                this.ety = (this.fy/1000)/29000;
+                this.ety_min = 0.003+this.ety;
+                this.rho_max = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety_min));
+                this.rho_balanced = 0.85*(this.beta1)*(this.fc/this.fy)*(0.003/(0.003+this.ety));
+                this.rho_min = Math.max((3*Math.pow(this.fc,0.5))/this.fy, 200/this.fy);
+            }
 
             this.Av = 2*transverse_reinforcement.As;
 
             this.generateDetailedReport = (typeof generateDetailedReport == 'undefined') ? false : generateDetailedReport;
 
+            let length_unit = (unit_system == 'metric') ? 'mm' : 'in'
+
             if (this.generateDetailedReport) {
                 let table_data = [
                     ["Parameter", "Value"],
-                    ["[mathin] d' [mathin]", `${this.d_prime} in.`],
-                    ["[mathin] d [mathin]", `${this.d} in.`],
+                    ["[mathin] d' [mathin]", `${this.d_prime} ${length_unit}.`],
+                    ["[mathin] d [mathin]", `${this.d} ${length_unit}.`],
                     ["[mathin] \\phi_{flexure} [mathin]", 0.9],
                     ["[mathin] \\phi_{shear} [mathin]", 0.75],
                     ["[mathin] \\beta_{1} [mathin]", prettyPrint(this.beta1,3)],
@@ -139,7 +172,7 @@ module.exports = function (input_json) {
                     ["[mathin] \\rho_{min} [mathin]", `${prettyPrint(this.rho_min, 4)}`],
                     ["[mathin] \\rho_{max} [mathin]", `${prettyPrint(this.rho_max, 4)}`],
                     ["[mathin] \\rho_{b} [mathin]", `${prettyPrint(this.rho_balanced, 4)}`],
-                    ["[mathin] A_{v} [mathin]", `${prettyPrint(this.Av, 4)} sq.in.`],
+                    ["[mathin] A_{v} [mathin]", `${prettyPrint(this.Av, 4)} sq.${length_unit}.`],
                 ];
                 
                 let options = {
@@ -153,20 +186,40 @@ module.exports = function (input_json) {
             }
         }
         calculateFlexureReinforcement(designMomentMu, location) {
-            // designMomentMu in kip-ft 
-            designMomentMu = Math.abs(designMomentMu*12*1000); // convert to lb-in
-            let As = this.calculateAreaOfReinforcementAs(designMomentMu);
+            let As;
+            if (unit_system == 'metric') {
+                // designMomentMu in kN-m
+                designMomentMu = Math.abs(designMomentMu*1000000); // convert to N-mm
+                As = this.calculateAreaOfReinforcementAs(designMomentMu);
 
-            if (this.generateDetailedReport) {
-                REPORT.block.addCalculation(`For ${location}:`);
-                ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(12*1000),2)} kip-ft`);
-                ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.in.`);
+                if (this.generateDetailedReport) {
+                    REPORT.block.addCalculation(`For ${location}:`);
+                    ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(1000000),2)} kN-m`);
+                    ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.mm.`);
+                }
+            } else {
+                // designMomentMu in kip-ft 
+                designMomentMu = Math.abs(designMomentMu*12*1000); // convert to lb-in
+                As = this.calculateAreaOfReinforcementAs(designMomentMu);
+
+                if (this.generateDetailedReport) {
+                    REPORT.block.addCalculation(`For ${location}:`);
+                    ReportHelpers.lineResult("Design Moment", "M_{u}", `${prettyPrint(designMomentMu/(12*1000),2)} kip-ft`);
+                    ReportHelpers.lineResult("Flexure reinforcement", "A_{s}", `${prettyPrint(As,3)} sq.in.`);
+                }
             }
+            
             return As;        
         }
         calculateShearCapacityOfConcreteVc() {
-            let Vc = 2*this.b*this.d*Math.pow(this.fc,0.5);
-            if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc/1000, 2) +' kips');
+            let Vc =  (unit_system == 'metric') ? 0.17*this.b*this.d*Math.pow(this.fc,0.5) : 2*this.b*this.d*Math.pow(this.fc,0.5);
+            
+            if (unit_system == 'metric') {
+                if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc/1000, 2) +' kN');
+            } else {
+                if (this.generateDetailedReport) ReportHelpers.lineResult("Shear capacity of concrete section (ACI 318-19 22.5.5.1) ", "V_{c}", prettyPrint(Vc/1000, 2) +' kips');
+            }
+            
             return Vc; //in lb
         }
         calculateShearReinforcementSpacing(Vu) {
@@ -176,40 +229,77 @@ module.exports = function (input_json) {
             let phi_shear = 0.75;
 
             let s;
-            if (Vu < phi_shear*this_Vc*0.5) {
-                s = 0;
 
-                s = Math.min(this.d/2, 24);
-                if (this.generateDetailedReport) {  
-                    ReportHelpers.lineResult("Shear reinforcement not required.", "s", prettyPrint(s, 2) +' in.');
-                }
-            } else if (Vu >= phi_shear*this_Vc*0.5 && Vu < phi_shear*this_Vc) {
-                s = Math.min((this.Av*this.fyt)/(phi_shear*Math.pow(fc,0.5)*this.b), (this.Av*this.fyt)/(50*this.b));
-                s = Math.min(this.d/2, 8, s);
-                if (this.generateDetailedReport) ReportHelpers.lineResult("Minimum reinforcement spacing required", "s", prettyPrint(s, 2) +' in.');
-            } else {
-                let Vs = (Vu/phi_shear) - this_Vc;
-                s = (this.Av*this.fyt*this.d)/Vs;
-                if (this.generateDetailedReport) {
-                    ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs/1000, 2) +' kips');
-                    ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' in.');
-                } 
-
-                let s_max;
-                if (Vs <= 4*this.b*this.d*Math.pow(this.fc,0.5)) {
-                    s_max = Math.min(this.d/2, 24);
+            if (unit_system == 'metric') {
+                if (Vu < phi_shear*this_Vc*0.5) {
+                    s = 0;
+            
+                    s = Math.min(this.d/2, 600);
+                    if (this.generateDetailedReport) {  
+                        ReportHelpers.lineResult("Shear reinforcement not required.", "s", prettyPrint(s, 2) +' mm.');
+                    }
+                } else if (Vu >= phi_shear*this_Vc*0.5 && Vu < phi_shear*this_Vc) {
+                    s = Math.min((this.Av*this.fyt)/(phi_shear*Math.pow(fc,0.5)*this.b), (this.Av*this.fyt)/(50*this.b));
+                    s = Math.min(this.d/2, 200, s);
+                    if (this.generateDetailedReport) ReportHelpers.lineResult("Minimum reinforcement spacing required", "s", prettyPrint(s, 2) +' mm.');
                 } else {
-                    s_max = Math.min(this.d/4, 12);
+                    let Vs = (Vu/phi_shear) - this_Vc;
+                    s = (this.Av*this.fyt*this.d)/Vs;
+                    if (this.generateDetailedReport) {
+                        ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs/1000, 2) +' kN');
+                        ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' mm.');
+                    } 
+            
+                    let s_max;
+                    if (Vs <= 0.33*this.b*this.d*Math.pow(this.fc,0.5)) {
+                        s_max = Math.min(this.d/2, 600);
+                    } else {
+                        s_max = Math.min(this.d/4, 300);
+                    }
+            
+                    s = Math.min(s, s_max);
+                    if (this.generateDetailedReport) {
+                        ReportHelpers.lineResult("Max. limit of spacing", "s_{max}", prettyPrint(s_max, 2) +' mm.');
+                        ReportHelpers.lineResult("Final spacing", "s", prettyPrint(s, 2) +' mm.');
+                    } 
+            
                 }
-
-                s = Math.min(s, s_max);
-                if (this.generateDetailedReport) {
-                    ReportHelpers.lineResult("Max. limit of spacing", "s_{max}", prettyPrint(s_max, 2) +' in.');
-                    ReportHelpers.lineResult("Final spacing", "s", prettyPrint(s, 2) +' in.');
-                } 
-   
+            } else {
+                if (Vu < phi_shear*this_Vc*0.5) {
+                    s = 0;
+    
+                    s = Math.min(this.d/2, 24);
+                    if (this.generateDetailedReport) {  
+                        ReportHelpers.lineResult("Shear reinforcement not required.", "s", prettyPrint(s, 2) +' in.');
+                    }
+                } else if (Vu >= phi_shear*this_Vc*0.5 && Vu < phi_shear*this_Vc) {
+                    s = Math.min((this.Av*this.fyt)/(phi_shear*Math.pow(fc,0.5)*this.b), (this.Av*this.fyt)/(50*this.b));
+                    s = Math.min(this.d/2, 8, s);
+                    if (this.generateDetailedReport) ReportHelpers.lineResult("Minimum reinforcement spacing required", "s", prettyPrint(s, 2) +' in.');
+                } else {
+                    let Vs = (Vu/phi_shear) - this_Vc;
+                    s = (this.Av*this.fyt*this.d)/Vs;
+                    if (this.generateDetailedReport) {
+                        ReportHelpers.lineResult("Shear strength provided by stirrups", "V_{s}", prettyPrint(Vs/1000, 2) +' kips');
+                        ReportHelpers.lineResult("Spacing required", "s", prettyPrint(s, 2) +' in.');
+                    } 
+    
+                    let s_max;
+                    if (Vs <= 4*this.b*this.d*Math.pow(this.fc,0.5)) {
+                        s_max = Math.min(this.d/2, 24);
+                    } else {
+                        s_max = Math.min(this.d/4, 12);
+                    }
+    
+                    s = Math.min(s, s_max);
+                    if (this.generateDetailedReport) {
+                        ReportHelpers.lineResult("Max. limit of spacing", "s_{max}", prettyPrint(s_max, 2) +' in.');
+                        ReportHelpers.lineResult("Final spacing", "s", prettyPrint(s, 2) +' in.');
+                    } 
+       
+                }
             }
-        
+            
             return s;
         }
         calculateShearCapacity(spacing) {
@@ -247,6 +337,7 @@ module.exports = function (input_json) {
         generateFlexureReinforcements (momentAEndObj, momentMidObj, momentBendObj) {
 
             let As_max = this.calculateMaximumAreaOfReinforcementAsmax()
+            let length_unit = (unit_system == 'metric') ? 'mm': 'in'
 
             REPORT.block.addCalculation(`Calculating for the required no. of main reinforcement, the following assumptions were used:
             <ul>
@@ -260,7 +351,7 @@ module.exports = function (input_json) {
             [math] As = \\frac{M_{u}}{ \\phi f_{y} (d - a/2)} [math]
             [math] a_{new} = \\frac{A_{s} f_{y}}{ 0.85 f'_{c} b } [math]
             Note: 
-            [math] A_{s,max} = \\rho b d = ${prettyPrint(As_max,3)} sq.in.[math]
+            [math] A_{s,max} = \\rho b d = ${prettyPrint(As_max,3)} sq.${length_unit}.[math]
             `);
 
             let momentObj = {
@@ -328,7 +419,7 @@ module.exports = function (input_json) {
             REPORT.block.addCalculation(`Calculating for the required spacing of shear reniforcement, the following assumptions were used:
             <ul>
                 <li>The spacing of stirrups was calculated using two (2) legs;</li>
-                <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in.; and</li>
+                <li>The maximum spacing, regardless if stirrups are required or not, will be minimum of [mathin]d/2[mathin] or 24 in. (600 mm); and</li>
                 <li>Torsional effects are not considered. </li>
             </ul>
             `);
@@ -338,7 +429,8 @@ module.exports = function (input_json) {
             let result = shearAbsForcesArr.map(arr => {
                 let Vu = arr[1];
                 let location = arr[0];
-                if (this.generateDetailedReport) REPORT.block.addCalculation(`For ${prettyPrint(location)} ft from A-end support:`)
+                let length_unit = (unit_system == 'metric') ? 'm' : 'ft'
+                if (this.generateDetailedReport) REPORT.block.addCalculation(`For ${prettyPrint(location,3)} ${length_unit} from A-end support:`)
                 let spacing_ = this.calculateShearReinforcementSpacing(Vu);
                 return spacing_;
             });
@@ -416,7 +508,7 @@ module.exports = function (input_json) {
         "stirrups_spacing": {
             "label":`Min. Stirrups Spacing, in.`,
             "value": prettyPrint(min_stirrup_spacing_arr[0],2),
-            "units": "in"
+            "units": (unit_system == 'metric') ? 'mm' : 'in'
         },
       },
       report: REPORT,
